@@ -1,0 +1,182 @@
+@media (max-width:992px){
+    footer .FooterTop {padding: 50px 0;}
+    .FeatureArea {padding: 50px 0 0;}
+    .PrivateDining .section-title h2,
+    .FeatureArea .section-title h2,
+    .BirthdayDecorationArea .section-title h2{font-size: 24px;}
+    .PolicyBanner h3 {font-size: 36px;}
+    .CategoriesMenu .Categories_dropdown {width: 100%;left: 0;right: 0;height: 200px;margin: 0px auto;}
+    
+    .navbar-nav .dropdown .dropdown-menu {margin-bottom: 10px;}
+    .newHeader .CustomSelect {margin-right: 0;}
+    .newHeader .CustomSelect::after {display: none;}
+    .CategoriesMenu .Categories_dropdown {min-height: calc(100vh - 350px);overflow-y: scroll;}
+    .newHeader .navbar-nav .nav-item .nav-link {border: none;padding: 15px 10px;position: relative;position: relative;}
+    .newHeader .navbar-nav .nav-item .nav-link::before {font-weight: 900;font-family: "Font Awesome 6 Free";position: absolute;right: 22px;font-size: 20px;content: "\2b";color: #572359;top: 50%;transform: translateY(-50%);}
+    .newHeader .navbar-nav .nav-item .nav-link[aria-expanded="true"]::before {content: "\f068";font-weight: 900;font-family: "Font Awesome 6 Free";}
+    .newHeader {display: block;padding: 5px 0;position: sticky;}
+    .newHeader .navbar-brand {margin-bottom: 5px;}
+    .newHeader .collapse.navbar-collapse {display: block;position: absolute;left: -100%;top: 52px;  height: 100vh;background-color: #fff;transition: all 0.5s;width: 100%;}
+    .Categories {
+        width: calc(100% - 20px);
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    .newHeader .resNav i {color: #000;}
+    .newHeader .resNav {font-size: 20px;margin: 5px 0px 0 5px;}
+    .newHeader .resNav.searchIcon {font-size: 16px;margin: 3px 5px 0 0;}
+    .newHeader .container-fluid {width: 100%;}
+    .newHeader .navbar-toggler {padding: 0;border: 0;font-size: 20px;color: #000;margin-top: -4px;margin-right: 10px;}
+    .headerTwoBtn {
+        /* margin-left: auto; */
+        margin-right: 0px;}
+    #navbarToggle {display: block;}
+    .newHeader .collapse.navbar-collapse.Left {left: 0!important;}
+    .CategoriesResponsive {left: 10px;right: 10px;width:100%;margin: 0;top: 55px;}
+    .loginIcon, .searchIcon {display: block;}
+    .searchLoginIcon {display: flex;align-items: center;}
+    .your-class {display: none;}
+    .CategoriesResponsive2 {display: inline-block;}
+    .responsiveLogin, .responsiveSearch {display: block;}
+    .responsiveLogin .UserIcon {display: inline-flex!important;}
+    .newHeader .nav-item.dropdown:hover .dropdown-menu {display: none;}
+    .newHeader .nav-item.dropdown .dropdown-menu.show {display: block;margin: 0px 10px;}
+    .custom-arrow.prev {left: -15px;z-index: 99;}
+    .custom-arrow.next {right: -20px;}
+    }
+@media (max-width:768px){
+    .CategoriesResponsive2 {display: none;}
+    .CategoriesResponsive {display: inline-block;}
+    .footer-icons {flex-direction: column;}
+    .ProductReviewsArea .ReviewBox {flex-direction: column;}
+    .ProductReviewsArea .ReviewBox aside:first-child {width: 100%;margin: 0 0 10px 0;}
+    .ProductReviewsArea .ReviewBox aside:last-child {width: 100%;}
+    .ProgressBarArea ul li label {display: flex;}
+    .ProgressBarArea ul li .ProgressBar {width: 50%;}
+    .ProductReviewsArea {padding-bottom: 0;}
+    .CategoriesMenu .Categories_dropdown article aside {width: 50%;}
+    .hidePara p {display: none;}
+    .newHeader .collapse.navbar-collapse {top: 96px;}
+    .FeatureArea {padding-top: 30px;}
+    .Categories .CategoriesMenu p:after {right: 10px;font-size: 12px;}
+}
+@media (max-width:576px){
+    .ProductDetailsArea .carousel-indicators [data-bs-target]{width: 18%;}
+    footer .FooterTop .FooterLogo {padding-right: 0;}
+    footer .FooterTop {padding: 25px 0;}
+    .PrivateDiningBox {padding: 5px;}
+    .PrivateDiningBox figure {width: 100%;margin-bottom: 0.5rem;}
+    .FooterLinks {margin: 0 0 15px 0;}
+    footer .FooterLinks h3 {margin: 0 0 10px 0;}
+    .FilterArea {margin: 0 0 20px 0; display: none;}
+    /* .BreadCumbs ul {flex-direction: column;align-items: flex-start;} */
+    .BreadCumbs ul li, .BreadCumbs ul li a {margin: 0 0 3px 0;}
+    .BreadCumbs ul li {padding-left: 0;margin: 0 20px 0 0;}
+    .ReviewListsArea {padding: 0;}
+    .ProductDetailsArea .carousel-indicators [data-bs-target] {height: auto;margin-bottom: 65px;}
+    .PrivateDining .section-title {margin-bottom: 25px;}
+    .TabsContentArea {padding-bottom: 25px;}
+    .ProductDetailsArea .carousel-indicators {display: flex;flex-direction: row;justify-content: flex-start;}
+    .ProductDetailsArea .PdRight article h3 {font-size: 18px;}
+    .ProductDetailsArea .PdRight article .Ratings+h5{font-size: 18px;margin-top: 10px;font-weight: 700;color: #572359;}
+    .TabsContentArea .nav {display: flex;flex-direction: row;}
+    .TabsContentArea .nav .nav-item{width: 50%;}
+    .ProgressBarArea ul {min-width: auto;}
+    .ProgressBarArea ul li {justify-content: space-between;}
+    .ModalBox .modal-content {padding: 20px;}
+    .CheckOutDetails .BookingBox h4,
+    .CheckOutDetails .VenueAddress h4
+    {font-size: 17px;}
+    .PaymentSuccessFulArea h3 {font-size: 18px;}
+    .PaymentSuccessFulArea p {font-size: 15px;}
+    .PaymentSuccessFulArea {justify-content: flex-start;padding: 50px 15px;height: auto;}
+    .PrivacyPolicyArea {padding: 50px 15px;}
+    .TabCommonBox.TermsConditionsContent h2{font-size: 18px;}
+    .VerticalTabs .TabCommonBox h3 {font-size: 18px;}
+    .FeatureArea .FeatureBoxMain {min-height: auto;}
+    .FeatureArea .FeatureBox aside {min-width: auto;min-height: auto;}
+    .FeatureArea .FeatureBoxMain .FeatureBox h4 {font-size: 14px;}
+    .PrivateDiningBox figure {margin: 0;height: 155px;}
+    .PrivateDiningBox h6 {font-size: 13px;line-height: 16px;margin: 0 0 5px 0;}
+    .PrivateDiningBox .Info {flex-direction: column-reverse;align-items: flex-start;}
+    .PrivateDiningBox h6 {min-height: auto;}
+    .PrivateDiningBox .Info button {margin: 0 0 5px 0;}
+    .PrivateDiningBox .Info h5 {text-align: left;}
+    .PrivateDiningBox .Info button {font-size: 13px;}
+    .CheckOutDetails .VenueAddress aside {flex-direction: column;}
+    .LargeModal .modal-dialog {max-width: 92%;}
+    .PrivateDiningBox .Info .text-right {display: flex;align-items: center;justify-content: space-between;width: 100%;margin-bottom: 5px;}
+    .PrivateDiningBox .Info h5 {margin-bottom: 0;}
+    .PrivateDiningBox .Info h5 {font-size: 14px;}
+    .BirthdayDecorationArea .container-fluid .row .col-6 {padding: 5px;}
+    footer .FooterLinks ul li a {font-size: 14px;}
+    .BirthdayDecorationArea img {height: 150px;}
+    .HeroRight img {height: 160px;}
+    .Hero-Section {margin: 0 0 25px 0;}
+    .BirthdayDecorationArea .section-title {margin: 0 0 25px 0;}
+    .CategoriesMenu .Categories_dropdown article aside {width: 100%;}
+    .CategoriesMenu .Categories_dropdown article {flex-direction: column;}
+    .CategoriesResponsive {left: 0;right: 0;width: 100%;}
+    .PrivateDiningBox .Info .AddToCartBtn {font-size: 13px;margin: 5px 0 0 0;}
+    .Modal .PrivateDiningBox .Info {flex-direction: column!important;}
+    .CustomizationsArea.Modal .row .col-6:nth-child(odd) {padding-right: 5px;}
+    .CustomizationsArea.Modal .row .col-6:nth-child(even) {padding-left: 5px;}
+    .PrivateDiningBox img {margin: 0 0 5px 0;}
+    .ModalArea h3 {font-size: 20px;}
+    .ModalBox .modal-content {padding: 20px 10px;}
+    .FeatureArea .row .col-6 {padding-left: 5px;padding-right: 5px;}
+    .newHeader .CustomSelect {height: 34px;}
+    .newHeader .navbar-toggler {margin-right: 5px;}
+    .newHeader .CustomSelect .LocationIcon {width: 14px;}
+    .newHeader .CustomSelect .LocationIcon {left: 5px;}
+    .custom-arrow.next {right: -20px;}
+    .custom-arrow.prev {left: -15px;z-index: 99;}
+    .PrivateDining {padding: 0 0 50px;}
+    .PrivateDining .col-6 {padding-left: 5px;padding-right: 5px;}
+    .FilterArea2 {display: block;}
+    .ProductDetailsArea {padding-top: 25px;}
+    .CheckOutDetails .ProfileDetailsBox ul li {width: 50%;}
+    .CheckOutDetails .CustomProduct article figcaption h2 {font-size: 14px;width: 70%;}
+    .CheckOutDetails .CustomProduct article .TrashIcon {width: 25px;height: 25px;line-height: 25px;}
+    .CheckOutDetails .CustomProduct article .TrashIcon img {width: 50%;}
+    .CheckOutDetails .CustomProduct article figcaption h3 {font-size: 16px;}
+    .BreadCumbs {display: none;}
+    .sixImages ul li {width: calc(30% - 10px);}
+    .priceArea {flex-direction: column;align-items: flex-start;}
+    .PrivateDiningBox .Info .text-right {flex-direction: column;align-items: flex-start;}
+    .PrivateDiningBox .Info span {margin:5px 0;}
+
+    .newHeader .container-fluid{ position: static; }
+
+    .newHeader .headerTwoBtn .dropdown{ position: initial; }
+
+       .newHeader .headerTwoBtn .CityDropdown {
+        width: 90%;
+        left: 0 !important;
+        right: 0 !important;
+        margin: auto;
+    }
+
+    .newHeader .headerTwoBtn .CityDropdown .DropdownLinks ul {
+    height: 205px
+    } 
+
+
+
+
+
+
+
+}
+
+@media (max-width:425px){
+    .newHeader .navbar .navbar-brand {width: 70px!important;margin-right: 0;}
+    .newHeader .CustomSelect .Select {font-size: 14px;}
+    .newHeader .CustomSelect {width: 115px;}
+    /* .headerTwoBtn {margin-left:0;} */
+    .navbar-toggler {padding: .25rem .5rem;font-size: 1rem;}
+    .PrivateDiningBox .Info .AddToCartBtn {font-size: 12px;}
+
+
+}

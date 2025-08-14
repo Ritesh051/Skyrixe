@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.png" />
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="" />
+
+    <link rel="stylesheet" href="owl-carousel/owl.theme.css" />
+    <!-- Add Font Awesome via CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <title>Skyrixe</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    
+
+    <!-- <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script> -->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("#navbarToggle").click(function () {
+          $(".newHeader .collapse.navbar-collapse").addClass("Left");
+          $(this).hide();
+          $("#navbarToggleClose").show();
+        });
+      });
+
+      $(document).ready(function () {
+        $("#navbarToggleClose").click(function () {
+          $(".newHeader .collapse.navbar-collapse").removeClass("Left");
+          $(this).hide();
+          $("#navbarToggle").show();
+        });
+      });
+
+      $(document).ready(function () {
+        $(".searchIcon").click(function () {
+          var currentDisplay = $(".CategoriesResponsive").css("display");
+          if (currentDisplay === "none") {
+            $(".CategoriesResponsive").css("display", "inline-flex");
+          } else {
+            $(".CategoriesResponsive").css("display", "none");
+          }
+        });
+      });
+
+      // best filter function
+      $(document).ready(function () {
+        $(".bestFilterBtn").click(function () {
+          $(".bestFilterBox").addClass("bestFilterBoxAdd");
+        });
+      });
+
+      $(document).ready(function () {
+        $(".closeBestFilter").click(function () {
+          $(".bestFilterBox").removeClass("bestFilterBoxAdd");
+        });
+      });
+    </script>
+
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=AW-16962905844"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "AW-16962905844");
+    </script>
+
+    <script>
+      document.addEventListener(
+        "touchstart",
+        function preventZoom(e) {
+          if (e.touches.length > 1) {
+            e.preventDefault(); // Prevent pinch zoom
+          }
+        },
+        { passive: false }
+      );
+
+      let lastTouchEnd = 0;
+      document.addEventListener(
+        "touchend",
+        function (e) {
+          const now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault(); // Prevent double-tap zoom
+          }
+          lastTouchEnd = now;
+        },
+        false
+      );
+    </script>
+
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NDDCTHQL');</script>
+<!-- End Google Tag Manager -->
+ 
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDDCTHQL"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+ 
+  </body>
+</html>
