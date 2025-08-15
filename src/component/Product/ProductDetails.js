@@ -5,7 +5,7 @@ import {
   productDetails,
   signUpState,
   slotListApi,
-  // staticSlotListApi,
+  staticSlotListApi,
 } from "../../reduxToolkit/Slices/ProductList/listApis";
 import { toast } from "react-toastify";
 import { Modal } from "react-bootstrap";
