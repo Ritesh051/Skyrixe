@@ -266,12 +266,36 @@ const Main = () => {
                         </figure>
                         <h6>{item?.productDetails?.productname}</h6>
                         <div className="Info">
-                          <button
-                            className="Buttons"
-                            onClick={() => handleProduct(item)}
-                          >
-                            Book
-                          </button>
+                          
+                        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center", // center row
+    gap: "1rem",              // spacing between buttons
+  }}
+>
+  <button className="Buttons" onClick={() => handleProduct(item)}>
+    Book
+  </button>
+  <button className="Buttons" onClick={() => handleProduct(item)}>
+   <div
+  style={{
+    display: "flex",
+    alignItems: "center",   // vertically center
+    gap: "6px"              // spacing between + and icon
+  }}
+>
++ cart
+  
+</div>
+
+   
+
+  </button>
+</div>
+
+                          
                           <div className="text-right">
                             <div className="priceArea">
                               {item?.priceDetails?.discountedPrice ? (

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import SignUp from "../Modals/SignUp";
 import { useDispatch, useSelector } from "react-redux";
+import CategoryMenu from "./CategoryMenu";
+import "../Header/CitySelection.css"
+import delhi from "../delhi.png"
 import {
   anniversaryDecoList,
   birthdayDecoList,
@@ -47,6 +50,33 @@ const Header = () => {
   const [userDetail, setUserDetail] = useState(() => {
     return JSON.parse(window.localStorage.getItem("LennyUserDetail")) || null;
   });
+
+   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('Select Your City');
+
+const cities = [
+  { name: "Delhi NCR", img:delhi },
+  { name: "Jaipur", img: delhi },
+  { name: "Bangalore", img:delhi },
+  { name: "Kolkata", img:delhi },
+  { name: "Indore", img: delhi },
+  { name: "Pune", img:delhi },
+  { name: "Across India", img:delhi },
+  { name: "Hyderabad", img:delhi },
+  { name: "Mumbai", img:delhi },
+  { name: "Kanpur", img: delhi },
+  { name: "Chennai", img:delhi },
+  { name: "Jammu", img: delhi },
+];
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
+  };
+
+  const handleCitySelect = (city) => {
+    setSelectedCity(city);
+    setIsPopupOpen(false);
+  };
 
   const handleCategory = (item, subCat) => {
     setDisableHover(true);
@@ -284,207 +314,17 @@ const Header = () => {
               class={`collapse navbar-collapse ${openSidebar ? "Left" : ""}`}
               id={`${openSidebar ? "navbarSupportedContent" : "link"}`}
             >
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
-                {categoryArr?.map((category_name, index) => {
-                  return (
-                    <li class="nav-item dropdown" key={index}>
-                      <a
-                        class="nav-link"
-                        id={`navbarDropdown${index}`}
-                        role="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                        style={{
-                          "--hover-color": `${
-                            index == 0
-                              ? "#f26a10"
-                              : index == 1
-                              ? "#f2c210"
-                              : index == 3
-                              ? "#ff3f6c"
-                              : "#0db7af"
-                          }`,
-                        }}
-                      >
-                        {category_name}
-                      </a>
-                      {category_name == "Birthday" ? (
-                        <ul
-                          class="dropdown-menu"
-                          aria-labelledby={`navbarDropdown${index}`}
-                        >
-                          {getCategorySubCatList?.data?.length > 0
-                            ? getCategorySubCatList?.data?.map((item, i) => {
-                                if (item?.categoryName == "BIRTHDAY") {
-                                  return (
-                                    <>
-                                      {item?.subcategories?.length > 0
-                                        ? item?.subcategories?.map(
-                                            (subCat, index) => {
-                                              return (
-                                                <li key={index}>
-                                                  <a
-                                                    class="dropdown-item"
-                                                    style={{
-                                                      "--hover-color":
-                                                        "#f26a10",
-                                                    }}
-                                                    onClick={() =>
-                                                      handleCategory(
-                                                        item,
-                                                        subCat
-                                                      )
-                                                    }
-                                                  >
-                                                    {subCat}
-                                                  </a>
-                                                </li>
-                                              );
-                                            }
-                                          )
-                                        : ""}
-                                    </>
-                                  );
-                                }
-                              })
-                            : ""}
-                        </ul>
-                      ) : category_name == "Anniversary" ? (
-                        <ul
-                          class="dropdown-menu"
-                          aria-labelledby={`navbarDropdown${index}`}
-                        >
-                          {getCategorySubCatList?.data?.length > 0
-                            ? getCategorySubCatList?.data?.map((item, i) => {
-                                if (item?.categoryName == "ANNIVERSARY") {
-                                  return (
-                                    <>
-                                      {item?.subcategories?.length > 0
-                                        ? item?.subcategories?.map(
-                                            (subCat, index) => {
-                                              return (
-                                                <li key={index}>
-                                                  <a
-                                                    class="dropdown-item"
-                                                    style={{
-                                                      "--hover-color":
-                                                        "#f2c210",
-                                                    }}
-                                                    onClick={() =>
-                                                      handleCategory(
-                                                        item,
-                                                        subCat
-                                                      )
-                                                    }
-                                                  >
-                                                    {subCat}
-                                                  </a>
-                                                </li>
-                                              );
-                                            }
-                                          )
-                                        : ""}
-                                    </>
-                                  );
-                                }
-                              })
-                            : ""}
-                        </ul>
-                      ) : category_name == "Kid's Party" ? (
-                        <ul
-                          class="dropdown-menu"
-                          aria-labelledby={`navbarDropdown${index}`}
-                        >
-                          {getCategorySubCatList?.data?.length > 0
-                            ? getCategorySubCatList?.data?.map((item, i) => {
-                                if (item?.categoryName == "KID'S PARTY") {
-                                  return (
-                                    <>
-                                      {item?.subcategories?.length > 0
-                                        ? item?.subcategories?.map(
-                                            (subCat, index) => {
-                                              return (
-                                                <li key={index}>
-                                                  <a
-                                                    class="dropdown-item"
-                                                    style={{
-                                                      "--hover-color":
-                                                        "#0db7af",
-                                                    }}
-                                                    onClick={() =>
-                                                      handleCategory(
-                                                        item,
-                                                        subCat
-                                                      )
-                                                    }
-                                                  >
-                                                    {subCat}
-                                                  </a>
-                                                </li>
-                                              );
-                                            }
-                                          )
-                                        : ""}
-                                    </>
-                                  );
-                                }
-                              })
-                            : ""}
-                        </ul>
-                      ) : category_name == "Baby Shower" ? (
-                        <ul
-                          class="dropdown-menu"
-                          aria-labelledby={`navbarDropdown${index}`}
-                        >
-                          {getCategorySubCatList?.data?.length > 0
-                            ? getCategorySubCatList?.data?.map((item, i) => {
-                                if (item?.categoryName == "BABY SHOWER") {
-                                  return (
-                                    <>
-                                      {item?.subcategories?.length > 0
-                                        ? item?.subcategories?.map(
-                                            (subCat, index) => {
-                                              return (
-                                                <li key={index}>
-                                                  <a
-                                                    class="dropdown-item"
-                                                    style={{
-                                                      "--hover-color":
-                                                        "#ff3f6c",
-                                                    }}
-                                                    onClick={() =>
-                                                      handleCategory(
-                                                        item,
-                                                        subCat
-                                                      )
-                                                    }
-                                                  >
-                                                    {subCat}
-                                                  </a>
-                                                </li>
-                                              );
-                                            }
-                                          )
-                                        : ""}
-                                    </>
-                                  );
-                                }
-                              })
-                            : ""}
-                        </ul>
-                      ) : (
-                        ""
-                      )}
-                    </li>
-                  );
-                })}
+              <ul style={{
+                padding:"10px"
+              }} class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+               <></>
                 <li className="nav-item dropdown-item Categories your-class">
                   <div
                     className={`Categories_hover ${
                       disableHover ? "disable-hover" : ""
                     }`}
                   >
-                    <div
+                    {/* <div
                       className="CategoriesMenu"
                       onMouseEnter={() => setDisableHover(false)}
                     >
@@ -531,7 +371,7 @@ const Header = () => {
                             : ""}
                         </article>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="CategoriesSearch">
@@ -629,107 +469,61 @@ const Header = () => {
               </ul>
               <form class="headerTwoBtn your-class">
                 <div className="d-flex align-items-center">
-                  <div className="dropdown">
-                    <div
-                      className="CustomSelect" //disable for temporary use
-                      id="dropdownMenuButton1"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <span className="LocationIcon">
-                        <img
-                          src={require("../../assets/images/location.png")}
-                        />
-                      </span>
-                      <div className="Select">
-                        {" "}
-                        {selectCity
-                          ? selectCity?.charAt(0).toUpperCase() +
-                            selectCity?.slice(1)
-                          : "City"}
-                      </div>
-                    </div>
-                    <ul
-                      className="CityDropdown dropdown-menu"
-                      aria-labelledby="dropdownMenuButton1"
-                    >
-                      <h2>Select your City</h2>
-                      <aside>
-                        <p>Experience available in:</p>
-                        <h6 style={{ wordBreak: "break-word" }}>
-                          {getCityList?.data?.length > 0
-                            ? getCityList?.data?.map((city, i) => {
-                                return (
-                                  <span key={i}>
-                                    {city?.cityName.charAt(0).toUpperCase() +
-                                      city?.cityName.slice(1)}
-                                    ,
-                                  </span>
-                                );
-                              })
-                            : ""}
-                        </h6>
-                        <p>
-                          Find more than 3000 decorations, gifts and surprises!
-                        </p>
-                        <div className="form-group">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search city here..."
-                            name="citySearch"
-                            value={citySearch}
-                            onChange={(e) => {
-                              updateState({
-                                ...iState,
-                                citySearch: e.target.value,
-                              });
-                            }}
-                          />
-                        </div>
-                      </aside>
-                      <div className="row">
-                        <div className="col-lg-12">
-                          <div className="DropdownLinks">
-                            <h3>Cities</h3>
-                            <ul>
-                              {getCityList?.data?.length > 0
-                                ? getCityList?.data?.map((city, i) => {
-                                  
-                                      return (
-                                        <li key={i}>
-                                          <a
-                                            onClick={() => {
-                                              updateState({
-                                                ...iState,
-                                                selectCity: city?.cityName,
-                                              });
-                                              window.localStorage?.setItem(
-                                                "LennyCity",
-                                                city?.cityName
-                                              );
-                                              window.localStorage?.setItem(
-                                                "LennyPincode",
-                                                JSON.stringify(city?.pincode)
-                                              );
-                                            }}
-                                          >
-                                            {city?.cityName
-                                              .charAt(0)
-                                              .toUpperCase() +
-                                              city?.cityName.slice(1)}
-                                          </a>
-                                        </li>
-                                      );
-                                    
-                                  })
-                                : ""}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </ul>
-                  </div>
+
+                     <div className="city-popup-container">
+      <button
+        onClick={togglePopup}
+        className="city-selection-button"
+      >
+        {selectedCity}
+        <br/>
+        <span className="dropdown-icon">
+          <svg
+  className={`icon ${isPopupOpen ? 'rotate' : ''}`}
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="currentColor"
+>
+  <path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5c-1.38 
+           0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
+</svg>
+        </span>
+      </button>
+
+      {isPopupOpen && (
+        <div className="city-popup">
+          <div className="popup-header">
+            <h3>Select your City</h3>
+            <p>Find more than 3000 decorations, gifts and surprises!</p>
+          </div>
+          
+          <div className="city-list">
+      <div className="city-grid" role="list">
+        {cities.map((city) => (
+          <button
+            key={city.name}
+            type="button"
+            role="listitem"
+            aria-pressed={selectedCity === city.name}
+            onClick={() => handleCitySelect(city)}
+            className={`city-item ${selectedCity === city.name ? "selected" : ""}`}
+          >
+            <img
+              src={city.img}
+              alt=""
+              className="city-icon"
+              loading="lazy"
+              width="72"
+              height="72"
+            />
+            <span className="city-label">{city.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+        </div>
+      )}
+    </div>
 
                   {userDetail && getOrderSummaryDetail ? (
                     <div className="Icons Avater">
@@ -799,7 +593,9 @@ const Header = () => {
                         </a>
                       )}
                     </li>
+
                   </ul>
+                   
 
                   {/* <button class="loginBtn" type="submit">
                     Login
@@ -907,6 +703,7 @@ const Header = () => {
           </li>
         </ul>
       </header>
+      <CategoryMenu/>
 
       <SignUp iState={iState} updateState={updateState} />
     </>

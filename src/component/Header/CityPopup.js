@@ -1,5 +1,6 @@
 import React from "react";
 import "./CityPopup.css";
+import "../MyTailwind.css";
 
 const cities = [
   { name: "Delhi NCR", icon: require("../../assets/icons/delhi.png") },
@@ -22,24 +23,29 @@ const cities = [
 
 export default function CityPopup({ onClose, onSelect }) {
   return (
-    <div className="city-popup-overlay">
-      <div className="city-popup">
-        <button className="close-btn" onClick={onClose}>✖</button>
-        <h2>Select your City</h2>
-        <p>Find more than 3000 decorations, gifts and surprises!</p>
-        <div className="city-grid">
-          {cities.map((city, i) => (
-            <div
-              key={i}
-              className="city-card"
-              onClick={() => onSelect(city.name)}
-            >
-              <img src={city.icon} alt={city.name} />
-              <span>{city.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    // <div className="city-popup-overlay">
+    //   <div className="city-popup">
+    //     <button className="close-btn" onClick={onClose}>✖</button>
+    //     <h2>Select your City</h2>
+    //     <p>Find more than 3000 decorations, gifts and surprises!</p>
+    //     <div className="city-grid">
+    //       {cities.map((city, i) => (
+    //         <div
+    //           key={i}
+    //           className="city-card"
+    //           onClick={() => onSelect(city.name)}
+    //         >
+    //           <img src={city.icon} alt={city.name} />
+    //           <span>{city.name}</span>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   </div>
+    // </div>
+
+    <>
+    <h1 className="text-3xl">fvrfgr</h1>
+    
+    </>
   );
 }
