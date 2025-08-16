@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import SignUp from "../Modals/SignUp";
 import { useDispatch, useSelector } from "react-redux";
 import { MdAddShoppingCart } from "react-icons/md";
+import { MapPin } from "lucide-react";
+import CitySelector from "../Modals/CityPopup";
 import {
   anniversaryDecoList,
   birthdayDecoList,
@@ -30,6 +32,7 @@ const initialState = {
 };
 
 const Header = () => {
+  const [showCitySelector, setShowCitySelector] = useState(false);
   const [iState, updateState] = useState(initialState);
   let categoryArr = ["Birthday", "Anniversary", "Kid's Party", "Baby Shower"];
   const dispatch = useDispatch();
@@ -71,6 +74,20 @@ const Header = () => {
     });
   };
 
+  const handleCitySelect = (city) => {
+    updateState({
+      ...iState,
+      selectCity: city?.cityName,
+    });
+
+    window.localStorage?.setItem("LennyCity", city?.cityName);
+    window.localStorage?.setItem(
+      "LennyPincode",
+      JSON.stringify(city?.pincode)
+    );
+
+    setShowCitySelector(false);
+  };
   // Effect for user details and city-dependent lists
   useEffect(() => {
     const storedUser = window.localStorage.getItem("LennyUserDetail");
@@ -123,6 +140,20 @@ const Header = () => {
   }, [getCityList, citySearch]);
 
   useEffect(() => {
+  const savedCity = localStorage.getItem("selectedCity");
+  if (savedCity) {
+    selectCity(savedCity);
+  } else {
+    const timer = setTimeout(() => {
+      setShowCitySelector(true); // show popup after 4 sec
+    }, 4000);
+
+    return () => clearTimeout(timer); // cleanup
+  }
+}, []);
+
+
+  useEffect(() => {
     if (search) {
       navigate("/search/products", { state: search });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -152,6 +183,8 @@ const Header = () => {
       return () => clearInterval(timeoutId);
     }
   }, [LoginTimer]);
+
+
 
 
   console.log({ LoginTimer });
@@ -194,109 +227,36 @@ const Header = () => {
             </div>
             <form class="headerTwoBtn d-block d-lg-none">
               <div className="d-flex">
-                <div className="dropdown">
-                  <div
-                    className="CustomSelect" //disable for temporary use
-                    id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+                <div className="citySelectorBtn">
+                  <button
+                    className="cityButton"
+                    onClick={() => setShowCitySelector(true)}
+                    type="button"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px 5px',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      border: '1px solid #ddd',
+                      padding: "5px",
+                      borderRadius: '6px',
+                      backgroundColor: '#f8f9fa',
+                      cursor: 'pointer'
+                    }}
                   >
                     <span className="LocationIcon">
-                      <img src={require("../../assets/images/location.png")} />
+                      <i className="fa-solid fa-location-dot" style={{ fontSize: '14px', color: '#666' }}></i>
                     </span>
-                    <div className="Select">
-                      {" "}
+                    <span className="cityText" style={{ flex: 1, minWidth: 0 }}>
                       {selectCity
                         ? selectCity?.charAt(0).toUpperCase() +
                         selectCity?.slice(1)
-                        : "City"}
-                    </div>
-                  </div>
-                  <ul
-                    className="CityDropdown dropdown-menu"
-                    aria-labelledby="dropdownMenuButton1"
-                  >
-                    <h2>Select your City</h2>
-                    <aside>
-                      <p>Experience available in:</p>
-                      <h6 style={{ wordBreak: "break-word" }}>
-                        {getCityList?.data?.length > 0
-                          ? getCityList?.data?.map((city, i) => {
-                            return (
-                              <span key={i}>
-                                {city?.cityName.charAt(0).toUpperCase() +
-                                  city?.cityName.slice(1)}
-                                ,
-                              </span>
-                            );
-                          })
-                          : ""}
-                      </h6>
-                      <p>
-                        Find more than 3000 decorations, gifts and surprises!
-                      </p>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Search city here..."
-                          name="citySearch"
-                          value={citySearch}
-                          onChange={(e) => {
-                            updateState({
-                              ...iState,
-                              citySearch: e.target.value,
-                            });
-                          }}
-                        />
-                      </div>
-                    </aside>
-                    <div className="row">
-                      <div className="col-lg-4">
-                        <div className="DropdownLinks">
-                          <h3>Cities</h3>
-                          <ul>
-                            {getCityList?.data?.length > 0
-                              ? getCityList?.data?.map((city, i) => {
-
-                                return (
-                                  <li key={i}>
-                                    <a
-                                      onClick={() => {
-                                        updateState({
-                                          ...iState,
-                                          selectCity: city?.cityName,
-                                        });
-                                        window.localStorage?.setItem(
-                                          "LennyCity",
-                                          city?.cityName
-                                        );
-                                        window.localStorage?.setItem(
-                                          "LennyPincode",
-                                          JSON.stringify(city?.pincode)
-                                        );
-                                      }}
-                                    >
-                                      {city?.cityName
-                                        .charAt(0)
-                                        .toUpperCase() +
-                                        city?.cityName.slice(1)}
-                                    </a>
-                                  </li>
-                                );
-
-                              })
-                              : ""}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </ul>
+                        : "Select City"}
+                    </span>
+                  </button>
                 </div>
-
-                {/* <button class="loginBtn" type="submit">
-                  Login
-                </button> */}
               </div>
             </form>
             <ul className="CategoriesResponsive2">
@@ -729,106 +689,35 @@ const Header = () => {
               </ul>
               <form class="headerTwoBtn your-class">
                 <div className="d-flex align-items-center">
-                  <div className="dropdown">
-                    <div
-                      className="CustomSelect" //disable for temporary use
-                      id="dropdownMenuButton1"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
+                  <div className="citySelectorBtn">
+                    <button
+                      className="cityButton"
+                      onClick={() => setShowCitySelector(true)}
+                      type="button"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        whiteSpace: 'nowrap',
+                        padding: '5px 10px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        border: '1px solid #ddd',
+                        borderRadius: '6px',
+                        backgroundColor: '#f8f9fa',
+                        cursor: 'pointer'
+                      }}
                     >
                       <span className="LocationIcon">
-                        <img
-                          src={require("../../assets/images/location.png")}
-                        />
+                        <i className="fa-solid fa-location-dot" style={{ fontSize: '18px', color: '#303943' }}></i>
                       </span>
-                      <div className="Select">
-                        {" "}
+                      <span className="cityText" style={{ flex: 1, minWidth: 0 }}>
                         {selectCity
                           ? selectCity?.charAt(0).toUpperCase() +
                           selectCity?.slice(1)
-                          : "City"}
-                      </div>
-                    </div>
-                    <ul
-                      className="CityDropdown dropdown-menu"
-                      aria-labelledby="dropdownMenuButton1"
-                    >
-                      <h2>Select your City</h2>
-                      <aside>
-                        <p>Experience available in:</p>
-                        <h6 style={{ wordBreak: "break-word" }}>
-                          {getCityList?.data?.length > 0
-                            ? getCityList?.data?.map((city, i) => {
-                              return (
-                                <span key={i}>
-                                  {city?.cityName.charAt(0).toUpperCase() +
-                                    city?.cityName.slice(1)}
-                                  ,
-                                </span>
-                              );
-                            })
-                            : ""}
-                        </h6>
-                        <p>
-                          Find more than 3000 decorations, gifts and surprises!
-                        </p>
-                        <div className="form-group">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search city here..."
-                            name="citySearch"
-                            value={citySearch}
-                            onChange={(e) => {
-                              updateState({
-                                ...iState,
-                                citySearch: e.target.value,
-                              });
-                            }}
-                          />
-                        </div>
-                      </aside>
-                      <div className="row">
-                        <div className="col-lg-12">
-                          <div className="DropdownLinks">
-                            <h3>Cities</h3>
-                            <ul>
-                              {getCityList?.data?.length > 0
-                                ? getCityList?.data?.map((city, i) => {
-
-                                  return (
-                                    <li key={i}>
-                                      <a
-                                        onClick={() => {
-                                          updateState({
-                                            ...iState,
-                                            selectCity: city?.cityName,
-                                          });
-                                          window.localStorage?.setItem(
-                                            "LennyCity",
-                                            city?.cityName
-                                          );
-                                          window.localStorage?.setItem(
-                                            "LennyPincode",
-                                            JSON.stringify(city?.pincode)
-                                          );
-                                        }}
-                                      >
-                                        {city?.cityName
-                                          .charAt(0)
-                                          .toUpperCase() +
-                                          city?.cityName.slice(1)}
-                                      </a>
-                                    </li>
-                                  );
-
-                                })
-                                : ""}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </ul>
+                          : "Select City"}
+                      </span>
+                    </button>
                   </div>
 
                   {userDetail && getOrderSummaryDetail ? (
@@ -881,9 +770,6 @@ const Header = () => {
                   ) : (
                     ""
                   )}
-                  <h3>
-                    you
-                  </h3>
                   <Link
                     to="/upcoming-bookings"
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 outline-none focus:outline-none focus:ring-0"
@@ -914,8 +800,8 @@ const Header = () => {
                   </ul>
 
                   {/* <button class="loginBtn" type="submit">
-                    Login
-                  </button> */}
+                      Login
+                      </button> */}
                 </div>
               </form>
             </div>
@@ -1019,6 +905,13 @@ const Header = () => {
         </ul>
       </header>
 
+      {showCitySelector && (
+        <CitySelector
+          cities={getCityList?.data || []}
+          onSelect={handleCitySelect}
+          onClose={() => setShowCitySelector(false)}
+        />
+      )}
       <SignUp iState={iState} updateState={updateState} />
     </>
   );

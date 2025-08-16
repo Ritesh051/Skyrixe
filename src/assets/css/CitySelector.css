@@ -1,0 +1,240 @@
+.city-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+  
+  .city-popup-modal {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    max-width: 640px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease-out;
+  }
+  
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  .city-popup-header {
+    position: relative;
+    padding: 24px 24px 15px 24px;;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .city-popup-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    text-align: center;
+    margin: 0;
+    font-family: inherit;
+  }
+  
+  .city-popup-close {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .city-popup-close:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .city-popup-close svg {
+    width: 24px;
+    height: 24px;
+    color: #6b7280;
+  }
+  
+  .city-popup-content {
+    padding: 16px 24px 8px;
+    text-align: center;
+  }
+  
+  .experience-text {
+    color: #374151;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+  }
+  
+  .cities-list {
+    color: #6b7280;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  
+  .description-text {
+    color: #6b7280;
+    font-size: 18px;
+    margin: 0;
+    font-weight: 400;
+  }
+  
+  .city-grid {
+    padding: 0 24px 32px;
+  }
+  
+  .cities-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  
+  @media (min-width: 768px) {
+    .cities-container {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .city-popup-overlay {
+      padding: 8px;
+    }
+    
+    .city-popup-header {
+      padding: 16px;
+    }
+    
+    .city-popup-title {
+      font-size: 20px;
+    }
+    
+    .city-grid {
+      padding: 0 16px 24px;
+    }
+    
+    .cities-container {
+      gap: 12px;
+    }
+  }
+  
+  .city-card {
+    padding: 16px 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    justify-content: center;
+  }
+  
+  .city-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px) scale(1.02);
+    border-color: #fca5a5;
+  }
+  
+  .city-card:active {
+    transform: translateY(0) scale(0.98);
+  }
+  
+  .city-icon {
+    /* width: 68px;
+    height: 68px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* border-radius: 50%; */
+    /* background-color: #fef2f2; */
+    transition: all 0.2s ease;
+  }
+
+  .city-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: #374151;
+    margin: 0;
+    text-align: center;
+    line-height: 1.2;
+  }
+  
+  .city-card:hover .city-name {
+    color: #dc2626;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .city-card {
+      padding: 16px 12px;
+      min-height: 90px;
+    }
+    
+    /* .city-icon {
+      width: 40px;
+      height: 40px;
+    } */
+    
+    .city-icon svg {
+      width: 30px;
+      height: 30px;
+    }
+    
+    .city-name {
+      font-size: 10px;
+    }
+  }
+  
+  /* Focus states for accessibility */
+  .city-card:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  .city-popup-close:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  /* Loading state (optional) */
+  .city-card.loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  .city-card.loading .city-icon {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .5;
+    }
+  }
