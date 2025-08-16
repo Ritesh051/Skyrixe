@@ -881,9 +881,6 @@ const Header = () => {
                   ) : (
                     ""
                   )}
-                  <h3>
-                    you
-                  </h3>
                   <Link
                     to="/upcoming-bookings"
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 outline-none focus:outline-none focus:ring-0"
