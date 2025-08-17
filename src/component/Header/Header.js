@@ -89,7 +89,6 @@ const Header = () => {
     setShowCitySelector(false);
   };
 
-  // Effect for user details and city-dependent lists
   useEffect(() => {
     const storedUser = window.localStorage.getItem("LennyUserDetail");
     if (getUserDetailState && storedUser) {
@@ -123,38 +122,43 @@ const Header = () => {
 
 
 
-  useEffect(() => {
-    if (getCityList && citySearch === "") {
-      const firstCity = getCityList?.data?.at(0);
-      if (firstCity) {
-        updateState(prevState => ({
-          ...prevState,
-          selectCity: firstCity.cityName,
-        }));
-        window.localStorage?.setItem("LennyCity", firstCity.cityName);
-        window.localStorage?.setItem(
-          "LennyPincode",
-          JSON.stringify(firstCity.pincode)
-        );
-      }
-    }
-  }, [getCityList, citySearch]);
-  useEffect(() => {
-    const savedCity = localStorage.getItem("LennyCity");
-
-    if (savedCity) {
+  // Auto-select first city if available and no search
+useEffect(() => {
+  if (getCityList && citySearch === "") {
+    const firstCity = getCityList?.data?.at(0);
+    if (firstCity) {
       updateState(prevState => ({
         ...prevState,
-        selectCity: savedCity,
+        selectCity: firstCity.cityName,
       }));
-    } else {
-      const timer = setTimeout(() => {
-        setShowCitySelector(true);
-      }, 4000);
-
-      return () => clearTimeout(timer);
+      window.localStorage.setItem("LennyCity", firstCity.cityName);
+      window.localStorage.setItem(
+        "LennyPincode",
+        JSON.stringify(firstCity.pincode)
+      );
     }
-  }, []);
+  }
+}, [getCityList, citySearch]);
+
+// Restore saved city OR show popup
+useEffect(() => {
+  const savedCity = localStorage.getItem("LennyCity");
+
+  if (savedCity) {
+    updateState(prevState => ({
+      ...prevState,
+      selectCity: savedCity,
+    }));
+  } else {
+    // show popup after 4s if no city saved
+    const timer = setTimeout(() => {
+      setShowCitySelector(true);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }
+}, []);
+
   useEffect(() => {
     if (search) {
       navigate("/search/products", { state: search });
