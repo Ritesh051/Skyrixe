@@ -3119,6 +3119,12 @@ header
 header nav {
   position: static;
 }
+.Icons.Avater {
+  margin: 0 15px;
+  display: flex;
+  align-items: center; 
+}
+
 
 .Categories {
   display: flex;
@@ -3712,8 +3718,15 @@ header nav ul li:hover .Sub_Categories_dropdown {
 .newHeader .nav-item.dropdown:hover .dropdown-menu {
   display: block;
 }
-
-
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #007bff; /* or your link color */
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit; /* keep font consistent */
+}
 
 ul.Icons{
   display: flex;
@@ -3752,6 +3765,7 @@ ul.Icons li a img{
 .logoArea .navbar-brand {width: 100px;display: inline-block;}
 .CategoriesResponsive, .CategoriesResponsive2 {display: none;}
 .loginIcon, .searchIcon {display: none;}
+
 
 .openMenu {overflow: hidden;}
 .your-class {

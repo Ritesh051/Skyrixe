@@ -845,7 +845,7 @@ const Product = () => {
                                   )}
                                 </div>
                                 <p>
-                                  4.8 <i class="fa-solid fa-star"></i> |{" "}
+                                  4.8 <i class="fa-solid fa-star" style="background-color:yellow"></i> |{" "}
                                   {i % 2 == 0 && i !== 0
                                     ? `${i % 2}` + 5 + i - 1
                                     : i == 0

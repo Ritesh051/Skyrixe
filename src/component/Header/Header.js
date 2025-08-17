@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import SignUp from "../Modals/SignUp";
 import { useDispatch, useSelector } from "react-redux";
-import { MdAddShoppingCart } from "react-icons/md";
-import { MapPin } from "lucide-react";
+// import { MdAddShoppingCart } from "react-icons/md";
+// import { MapPin } from "lucide-react";
 import CitySelector from "../Modals/CityPopup";
 import {
   anniversaryDecoList,
@@ -21,7 +21,7 @@ import {
   orderSummary,
 } from "../../reduxToolkit/Slices/Cart/bookingApis";
 import { toast } from "react-toastify";
-import NavigationDropdown from "../Modals/DropdownNav";
+// import NavigationDropdown from "../Modals/DropdownNav";
 const initialState = {
   signUpModal: false,
   selectCity: "",
@@ -80,14 +80,15 @@ const Header = () => {
       selectCity: city?.cityName,
     });
 
-    window.localStorage?.setItem("LennyCity", city?.cityName);
-    window.localStorage?.setItem(
+    window.localStorage.setItem("LennyCity", city?.cityName);
+    window.localStorage.setItem(
       "LennyPincode",
       JSON.stringify(city?.pincode)
     );
 
     setShowCitySelector(false);
   };
+
   // Effect for user details and city-dependent lists
   useEffect(() => {
     const storedUser = window.localStorage.getItem("LennyUserDetail");
@@ -138,21 +139,22 @@ const Header = () => {
       }
     }
   }, [getCityList, citySearch]);
-
   useEffect(() => {
-    const savedCity = localStorage.getItem("selectedCity");
+    const savedCity = localStorage.getItem("LennyCity");
+
     if (savedCity) {
-      selectCity(savedCity);
+      updateState(prevState => ({
+        ...prevState,
+        selectCity: savedCity,
+      }));
     } else {
       const timer = setTimeout(() => {
-        setShowCitySelector(true); // show popup after 4 sec
+        setShowCitySelector(true);
       }, 4000);
 
-      return () => clearTimeout(timer); // cleanup
+      return () => clearTimeout(timer);
     }
   }, []);
-
-
   useEffect(() => {
     if (search) {
       navigate("/search/products", { state: search });
@@ -195,7 +197,7 @@ const Header = () => {
           <div class="container-fluid">
             <div className="logoArea">
               {openSidebar ? (
-                <a
+                <button
                   href="#"
                   onClick={() => updateState({ ...iState, openSidebar: false })}
                   className="navbar-toggler"
@@ -203,18 +205,18 @@ const Header = () => {
                   style={{ display: "block" }}
                 >
                   <i class="fa-solid fa-xmark"></i>
-                </a>
+                </button>
               ) : (
-                <a
+                <button
                   href="#"
                   onClick={() => updateState({ ...iState, openSidebar: true })}
                   className="navbar-toggler"
                   id="navbarToggle"
                 >
                   <i class="fa-solid fa-bars-staggered"></i>
-                </a>
+                </button>
               )}
-              <a
+              <Link
                 className="navbar-brand"
                 onClick={() => {
                   updateState({ ...iState, search: "" });
@@ -222,8 +224,8 @@ const Header = () => {
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
               >
-                <img src={require("../../assets/images/Header_Logo.png")} />
-              </a>
+                <img src={require("../../assets/images/Header_Logo.png")} alt="Logo" />
+              </Link>
             </div>
             <form class="headerTwoBtn d-block d-lg-none">
               <div className="d-flex">
@@ -274,9 +276,7 @@ const Header = () => {
                           ? getCategorySubCatList?.data?.map((item, i) => {
                             return (
                               <aside key={i}>
-                                <h6
-                                // style={{ color: i%2==0 ? "#02366F" : "Orange" }}
-                                >
+                                <h6>
                                   {item?.categoryName}
                                 </h6>
                                 <ul>
@@ -286,19 +286,20 @@ const Header = () => {
                                         if (index <= 4) {
                                           return (
                                             <li key={index}>
-                                              <a
-                                                onClick={() =>
-                                                  handleCategory(
-                                                    item,
-                                                    subCat
-                                                  )
-                                                }
-                                              >
-                                                {subCat}
-                                              </a>
+                                              <li key={index}>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => handleCategory(item, subCat)}
+                                                  className="link-button"
+                                                >
+                                                  {subCat}
+                                                </button>
+                                              </li>
+
                                             </li>
                                           );
                                         }
+                                        return null;
                                       }
                                     )
                                     : ""}
@@ -327,11 +328,13 @@ const Header = () => {
                   <span>
                     <img
                       src={require("../../assets/images/search-normal.png")}
+                      alt="search icon"
                     />
                   </span>
                 </div>
               </li>
             </ul>
+
             {/* <button
               class="navbar-toggler"
               type="button"
@@ -358,11 +361,11 @@ const Header = () => {
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                         style={{
-                          "--hover-color": `${index == 0
+                          "--hover-color": `${index === 0
                             ? "#f26a10"
-                            : index == 1
+                            : index === 1
                               ? "#f2c210"
-                              : index == 3
+                              : index === 3
                                 ? "#ff3f6c"
                                 : "#0db7af"
                             }`,
@@ -370,14 +373,14 @@ const Header = () => {
                       >
                         {category_name}
                       </a>
-                      {category_name == "Birthday" ? (
+                      {category_name === "Birthday" ? (
                         <ul
                           class="dropdown-menu"
                           aria-labelledby={`navbarDropdown${index}`}
                         >
                           {getCategorySubCatList?.data?.length > 0
                             ? getCategorySubCatList?.data?.map((item, i) => {
-                              if (item?.categoryName == "BIRTHDAY") {
+                              if (item?.categoryName === "BIRTHDAY") {
                                 return (
                                   <>
                                     {item?.subcategories?.length > 0
@@ -411,14 +414,14 @@ const Header = () => {
                             })
                             : ""}
                         </ul>
-                      ) : category_name == "Anniversary" ? (
+                      ) : category_name === "Anniversary" ? (
                         <ul
                           class="dropdown-menu"
                           aria-labelledby={`navbarDropdown${index}`}
                         >
                           {getCategorySubCatList?.data?.length > 0
                             ? getCategorySubCatList?.data?.map((item, i) => {
-                              if (item?.categoryName == "ANNIVERSARY") {
+                              if (item?.categoryName === "ANNIVERSARY") {
                                 return (
                                   <>
                                     {item?.subcategories?.length > 0
@@ -452,14 +455,14 @@ const Header = () => {
                             })
                             : ""}
                         </ul>
-                      ) : category_name == "Kid's Party" ? (
+                      ) : category_name === "Kid's Party" ? (
                         <ul
                           class="dropdown-menu"
                           aria-labelledby={`navbarDropdown${index}`}
                         >
                           {getCategorySubCatList?.data?.length > 0
                             ? getCategorySubCatList?.data?.map((item, i) => {
-                              if (item?.categoryName == "KID'S PARTY") {
+                              if (item?.categoryName === "KID'S PARTY") {
                                 return (
                                   <>
                                     {item?.subcategories?.length > 0
@@ -493,14 +496,14 @@ const Header = () => {
                             })
                             : ""}
                         </ul>
-                      ) : category_name == "Baby Shower" ? (
+                      ) : category_name === "Baby Shower" ? (
                         <ul
                           class="dropdown-menu"
                           aria-labelledby={`navbarDropdown${index}`}
                         >
                           {getCategorySubCatList?.data?.length > 0
                             ? getCategorySubCatList?.data?.map((item, i) => {
-                              if (item?.categoryName == "BABY SHOWER") {
+                              if (item?.categoryName === "BABY SHOWER") {
                                 return (
                                   <>
                                     {item?.subcategories?.length > 0
@@ -717,7 +720,7 @@ const Header = () => {
                   ) : (
                     ""
                   )}
-                  <Link
+                  {/* <Link
                     to="/upcoming-bookings"
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 outline-none focus:outline-none focus:ring-0"
                   >
@@ -725,7 +728,7 @@ const Header = () => {
                       className="w-6 h-6 hover:text-blue-600"
                       style={{ fontSize: '28px', color: '#1f2937' }}
                     />
-                  </Link>
+                  </Link> */}
 
                   <ul className="Icons">
                     <li>
@@ -862,7 +865,7 @@ const Header = () => {
       <SignUp iState={iState} updateState={updateState} />
       {/* <NavigationDropdown/> */}
     </>
-    
+
   );
 };
 

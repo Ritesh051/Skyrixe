@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   productDetails,
-  signUpState,
   slotListApi,
-  staticSlotListApi,
 } from "../../reduxToolkit/Slices/ProductList/listApis";
-import { toast, useToast } from "react-toastify";
+import { toast } from "react-toastify";
 import { Modal } from "react-bootstrap";
 import { addtoCart } from "../../reduxToolkit/Slices/Cart/bookingApis";
-import { convertTimeFormat, formatDate } from "../../Utils/commonFunctions";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.min.css";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 import { ratingReviewList } from "../../reduxToolkit/Slices/ReviewAndRating/reviewRatingApis";
-import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { BeatLoader } from "react-spinners";
 import { addressListing } from "../../reduxToolkit/Slices/Auth/auth";
@@ -48,7 +44,6 @@ const ProductDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const item = location?.state;
-  const [qty, setQty] = useState(1);
   const userDetail = JSON.parse(window.localStorage.getItem("LennyUserDetail"));
   const LennyPincode = JSON.parse(window.localStorage.getItem("LennyPincode"));
   const [productDetailsClone, setProductDetailsClone] = useState("");
@@ -59,10 +54,8 @@ const ProductDetails = () => {
 
   const [iState, updateState] = useState(initialState);
   const {
-    largeImg,
     pincode,
     slots,
-    slotList,
     minDate,
     dateAdded,
     errors,
@@ -70,13 +63,11 @@ const ProductDetails = () => {
     customModal,
     customization,
     totalPrice,
-    readMore,
-    id,
     rating,
   } = iState;
   const { getProductDetails, getSlotList, getStaticSlotList, loader } =
     useSelector((state) => state.productList);
-  const { getRatingReviewList, loading } = useSelector(
+  const { getRatingReviewList } = useSelector(
     (state) => state.reviewRating
   );
   const { getAddressList } = useSelector((state) => state.auth);
@@ -95,8 +86,8 @@ const ProductDetails = () => {
       });
 
       if (
-        modifiedValue?.length == 6 &&
-        modifiedValue != LennyPincode?.find((item) => item == modifiedValue) &&
+        modifiedValue?.length === 6 &&
+        modifiedValue != LennyPincode?.find((item) => item === modifiedValue) &&
         e.key != "Backspace"
       ) {
         toast.error(
@@ -106,8 +97,8 @@ const ProductDetails = () => {
           }
         );
       } else if (
-        modifiedValue?.length == 6 &&
-        modifiedValue == LennyPincode?.find((item) => item == modifiedValue)
+        modifiedValue?.length === 6 &&
+        modifiedValue === LennyPincode?.find((item) => item === modifiedValue)
       ) {
         toast.success(
           "Our service is available in your location, Please proceed with your booking.",
@@ -116,14 +107,14 @@ const ProductDetails = () => {
           }
         );
       }
-    } else if (name == "dateAdded") {
+    } else if (name === "dateAdded") {
       updateState({
         ...iState,
         [name]: value,
         errors: { ...errors, slotsError: "", dateAddedError: "" },
       });
       dispatch(slotListApi({ date: value, productId: item?._id }));
-    } else if (name == "rating") {
+    } else if (name === "rating") {
       if (checked) {
         if (!rating?.includes(Number(value))) {
           updateState({ ...iState, rating: [...rating, Number(value)] });
@@ -156,7 +147,7 @@ const ProductDetails = () => {
       formIsValid = false;
     }
 
-    if (pincode && pincode != LennyPincode?.find((item) => item == pincode)) {
+    if (pincode && pincode != LennyPincode?.find((item) => item === pincode)) {
       error.pincodeError = "*Service is currently unavailable for this pincode";
       formIsValid = false;
       toast.error(
@@ -206,7 +197,7 @@ const ProductDetails = () => {
 
     dispatch(addtoCart(cartData))
       .then((res) => {
-        if (res?.payload?.message == "Added Successfully") {
+        if (res?.payload?.message === "Added Successfully") {
           navigate("/checkout-1", { state: cartData });
         }
       })
@@ -254,7 +245,7 @@ const ProductDetails = () => {
     setProductDetailsClone((prev) => {
       const updatedItems = prev?.data?.product?.productcustomizeDetails?.map(
         (element, i) => {
-          if (element._id == item._id) {
+          if (element._id === item._id) {
             const newQty = Number(element.quantity) + 1;
             const data = {
               name: item?.name,
@@ -263,12 +254,12 @@ const ProductDetails = () => {
               qty: newQty,
               id: item?._id,
             };
-            if (customization?.find((custom) => custom?.id == item?._id)) {
+            if (customization?.find((custom) => custom?.id === item?._id)) {
               updateState({
                 ...iState,
                 totalPrice: totalPrice + item?.price,
                 customization: customization?.map((custom, i) => {
-                  if (custom?.id == item?._id) {
+                  if (custom?.id === item?._id) {
                     return { ...custom, qty: newQty };
                   }
                   return custom;
@@ -303,8 +294,8 @@ const ProductDetails = () => {
   const handleDecrement = (item) => {
     setProductDetailsClone((prev) => {
       const updatedItems = prev?.data?.product?.productcustomizeDetails?.map(
-        (element, i) => {
-          if (element._id == item._id) {
+        (element) => {
+          if (element._id === item._id) {
             if (Number(item.quantity) > 1) {
               const newQty = Number(element.quantity) - 1;
               const data = {
@@ -314,12 +305,12 @@ const ProductDetails = () => {
                 qty: newQty,
                 id: item?._id,
               };
-              if (customization?.find((custom) => custom?.id == item?._id)) {
+              if (customization?.find((custom) => custom?.id === item?._id)) {
                 updateState({
                   ...iState,
                   totalPrice: totalPrice - item?.price,
                   customization: customization?.map((custom, i) => {
-                    if (custom?.id == item?._id) {
+                    if (custom?.id === item?._id) {
                       return { ...custom, qty: newQty };
                     }
                     return custom;
@@ -356,7 +347,7 @@ const ProductDetails = () => {
     setProductDetailsClone((prev) => {
       const updatedItems = prev?.data?.product?.productcustomizeDetails?.map(
         (element, i) => {
-          if (element._id == item._id) {
+          if (element._id === item._id) {
             return { ...element, quantity: 1 };
           }
           return element;
@@ -408,7 +399,7 @@ const ProductDetails = () => {
         slot: slots,
         customization: skip == "skip" ? [] : customization,
         totalAmount:
-          skip == "skip"
+          skip === "skip"
             ? getProductDetails?.data?.product?.priceDetails?.discountedPrice
               ? getProductDetails?.data?.product?.priceDetails?.discountedPrice
               : getProductDetails?.data?.product?.priceDetails?.price
@@ -416,7 +407,7 @@ const ProductDetails = () => {
       };
       dispatch(addtoCart(data))
         .then((res) => {
-          if (res?.payload?.message == "Added Successfully") {
+          if (res?.payload?.message === "Added Successfully") {
             navigate("/checkout-1", { state: { ...data, totalPrice } });
           }
         })
@@ -471,7 +462,7 @@ const ProductDetails = () => {
 
   const handleKeyDown = (e) => {
     const { name } = e.target;
-    if (e.key == "Backspace" && name == "pincode") {
+    if (e.key == "Backspace" && name === "pincode") {
       updateState({ ...iState, pincode_valid: true });
     }
   };

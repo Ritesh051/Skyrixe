@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import "../../assets/css/LoginModal.css";
 
-const LoginModal = ({ show, onHide, onLoginSuccess, onBack, bookingDetails }) => {
+const LoginModal = ({
+  show,
+  onHide,
+  onLoginSuccess,
+  onBack,
+  bookingDetails,
+  onEditDate,
+  onEditTime,
+  onEditCustomizations
+}) => {
   const [loginMethod, setLoginMethod] = useState("mobile");
   const [mobileNumber, setMobileNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -55,7 +64,7 @@ const LoginModal = ({ show, onHide, onLoginSuccess, onBack, bookingDetails }) =>
   };
 
   const calculateTotal = () => {
-    const basePrice = 21999; // Base product price from screenshot
+    const basePrice = 21999; 
     const customizationsTotal = bookingDetails?.selectedCustomizations?.reduce((sum, item) => sum + item.price, 0) || 0;
     return basePrice + customizationsTotal;
   };
@@ -163,9 +172,15 @@ const LoginModal = ({ show, onHide, onLoginSuccess, onBack, bookingDetails }) =>
                   <div className="InfoRow">
                     <i className="fa-solid fa-calendar"></i>
                     <span>{formatDate(bookingDetails?.selectedDate)}</span>
+                    <button className="EditBtn" onClick={onEditDate}>
+                      <i className="fa-solid fa-edit"></i>
+                      Edit
+                    </button>
+                  </div>
+                  <div className="InfoRow">
                     <i className="fa-solid fa-clock"></i>
                     <span>{formatTime(bookingDetails?.selectedTimeSlot)}</span>
-                    <button className="EditBtn">
+                    <button className="EditBtn" onClick={onEditTime}>
                       <i className="fa-solid fa-edit"></i>
                       Edit
                     </button>
@@ -186,7 +201,7 @@ const LoginModal = ({ show, onHide, onLoginSuccess, onBack, bookingDetails }) =>
               <div className="CustomizationsInfo">
                 <h6>
                   Customisations 
-                  <i className="fa-solid fa-edit"></i>
+                  <i className="fa-solid fa-edit" onClick={onEditCustomizations}></i>
                 </h6>
                 {bookingDetails?.selectedCustomizations?.length > 0 ? (
                   <div className="CustomizationsList">
