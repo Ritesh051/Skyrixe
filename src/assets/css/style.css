@@ -3947,6 +3947,134 @@ background-color: rgba(29, 158, 52, 0.1);
   transition: background-color 0.3s ease-in-out;
 }
 
+
+/* Custom Arrow Styles */
+.custom-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+}
+
+.custom-arrow.prev {
+  left: 10px;
+}
+
+.custom-arrow.next {
+  right: 10px;
+}
+
+.custom-arrow:hover {
+  background-color: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.custom-arrow i {
+  font-size: 18px;
+  color: #333;
+}
+
+/* Scroll Container Wrapper */
+.scroll-container-wrapper {
+  position: relative;
+}
+
+/* Birthday Scroll Container */
+.birthday-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 20px 60px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.birthday-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.birthday-item {
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+/* Anniversary Scroll Container */
+.anniversary-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 20px 60px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.anniversary-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.anniversary-item {
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+/* Kids Scroll Container */
+.kids-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 20px 60px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.kids-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.kids-item {
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+/* Baby Shower Scroll Container */
+.baby-shower-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 20px 60px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.baby-shower-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.baby-shower-item {
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+
 .ReviewButton{
   background-color: rgba(48, 57, 67, 1);
     color: #fff;

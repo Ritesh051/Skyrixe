@@ -38,15 +38,26 @@ const initialState = {
   readMore: false,
   id: "",
   rating: [],
-  // Add recommended tabs state
   activeRecommendedTab: "recommended",
-  activeFilterTag: "Entry Gate Arch"
+  activeFilterTag: "Entry Gate Arch",
+  recommendedScrollPosition: 0,
+  maxScrollPosition: 0
 };
 
 const ProductDetails = () => {
-  // Simplified modal flow - only use BookingFlow
-  const [showBookingFlow, setShowBookingFlow] = useState(false);
 
+  // State to track favourite products (by id)
+  const [favouriteProducts, setFavouriteProducts] = useState([]);
+
+  // Toggle favourite status for a product
+  const handleFavouriteToggle = (productId) => {
+    setFavouriteProducts((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+  const [showBookingFlow, setShowBookingFlow] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -77,7 +88,9 @@ const ProductDetails = () => {
     id,
     rating,
     activeRecommendedTab,
-    activeFilterTag
+    activeFilterTag,
+    recommendedScrollPosition,
+    maxScrollPosition
   } = iState;
   const { getProductDetails, getSlotList, getStaticSlotList, loader } =
     useSelector((state) => state.productList);
@@ -85,18 +98,18 @@ const ProductDetails = () => {
     (state) => state.reviewRating
   );
   const { getAddressList } = useSelector((state) => state.auth);
-  
+
 
   const handleCategoryClick = (categoryName) => {
-  try {
-    // Navigate to a general products page with category filter
-    navigate('/products', { state: { category: categoryName } });   
-  } catch (error) {
-    console.error('Navigation error:', error);
-    // Fallback: just navigate to products page
-    navigate('/products');
-  }
-};
+    try {
+      // Navigate to a general products page with category filter
+      navigate('/products', { state: { category: categoryName } });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback: just navigate to products page
+      navigate('/products');
+    }
+  };
 
   // Handle recommended tab clicks
   const handleRecommendedTabClick = (tabName) => {
@@ -111,6 +124,53 @@ const ProductDetails = () => {
     updateState({
       ...iState,
       activeFilterTag: tagName
+    });
+  };
+
+  // Function to handle scrolling in recommended section
+  const handleRecommendedScroll = (direction) => {
+    const container = document.querySelector('.recommended-products-grid');
+    if (!container) return;
+
+    const cardWidth = 280; // Approximate width of each card including margin
+    const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
+
+    if (direction === 'left') {
+      const newPosition = Math.max(0, recommendedScrollPosition - scrollAmount);
+      container.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
+      updateState({
+        ...iState,
+        recommendedScrollPosition: newPosition
+      });
+    } else if (direction === 'right') {
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const newPosition = Math.min(maxScroll, recommendedScrollPosition + scrollAmount);
+      container.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
+      updateState({
+        ...iState,
+        recommendedScrollPosition: newPosition
+      });
+    }
+  };
+
+  // Function to update scroll position and button states
+  const updateScrollPosition = () => {
+    const container = document.querySelector('.recommended-products-grid');
+    if (!container) return;
+
+    const currentScroll = container.scrollLeft;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    updateState({
+      ...iState,
+      recommendedScrollPosition: currentScroll,
+      maxScrollPosition: maxScroll
     });
   };
 
@@ -211,7 +271,7 @@ const ProductDetails = () => {
     return formIsValid;
   };
 
-  // Simplified booking flow handler
+  // booking flow handler
   const handleBookingFlowComplete = (bookingData) => {
     console.log('Booking completed with data:', bookingData);
     setShowBookingFlow(false);
@@ -571,7 +631,26 @@ const ProductDetails = () => {
       })
     );
   }, [rating]);
-  // Add this inside your ProductDetails component, before the return statement
+
+
+  useEffect(() => {
+    const container = document.querySelector('.recommended-products-grid');
+    if (container) {
+      container.addEventListener('scroll', updateScrollPosition);
+
+      // Initial calculation
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      updateState({
+        ...iState,
+        maxScrollPosition: maxScroll
+      });
+
+      return () => {
+        container.removeEventListener('scroll', updateScrollPosition);
+      };
+    }
+  }, [getProductDetails?.data?.similarProducts]);
+
   const FixedBottomBookingBar = ({
     productPrice,
     discountedPrice,
@@ -595,7 +674,7 @@ const ProductDetails = () => {
     const handleTabClick = (tabName) => {
       setCurrentTab(tabName);
       const sectionMap = {
-        'Overview': '.product-info-wrapper',
+        'Overview': 'product-info',
         'Inclusions': '.inclusions-section',
         'Reviews': '.reviews-section-card'
       };
@@ -761,7 +840,7 @@ const ProductDetails = () => {
                     </div>
                   </div>
 
-                  {/* Why Skyrixe Info Box - FIXED POSITIONING */}
+                  {/* Why Skyrixe Info Box */}
                   <div className="why-skyrixe-box">
                     <h3 className="why-skyrixe-title">
                       Why <span className="why-skyrixe-heart">❤</span> Skyrixe ?
@@ -789,141 +868,143 @@ const ProductDetails = () => {
 
                 {/* Product Information */}
                 <div className="col-lg-6 col-12">
-                  <div className="product-info-wrapper">
-                    <div className="product-info">
-                      <nav className="product-info-breadcrumb">
-                        <span className="breadcrumb-link" onClick={() => navigate("/")}>Home</span>
-                        <span className="breadcrumb-separator">&gt;</span>
-                        <span className="breadcrumb-current">
-                          {getProductDetails?.data?.product?.productDetails?.productname}
-                        </span>
-                      </nav>
-                      <h2 className="product-info-title">
+
+                  <div className="product-info">
+                    <nav className="product-info-breadcrumb">
+                      <span className="breadcrumb-link" onClick={() => navigate("/")}>Home</span>
+                      <span className="breadcrumb-separator">&gt;</span>
+                      <span className="breadcrumb-current">
                         {getProductDetails?.data?.product?.productDetails?.productname}
-                      </h2>
-                      <p className="product-info-subtitle">
-                        {getProductDetails?.data?.product?.productDetails?.productname}
-                      </p>
-                      <div className="product-info-rating">
-                        <span className="product-info-stars">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <i key={i} className={`fa-solid fa-star${i < Math.round(getRatingReviewList?.data?.overallRating || 0) ? ' filled' : ''}`}></i>
-                          ))}
-                        </span>
-                        <span className="product-info-reviews">
-                          {getRatingReviewList?.data?.totalReviews || 0} Reviews
-                          <i className="fa-solid fa-chevron-right" style={{ marginLeft: '5px' }}></i>
-                        </span>
-                      </div>
+                      </span>
+                    </nav>
+                    <h2 className="product-info-title">
+                      {getProductDetails?.data?.product?.productDetails?.productname}
+                    </h2>
+                    <p className="product-info-subtitle">
+                      {getProductDetails?.data?.product?.productDetails?.productname}
+                    </p>
+                    <div className="product-info-rating">
+                      <span className="product-info-stars">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <i key={i} className={`fa-solid fa-star${i < Math.round(getRatingReviewList?.data?.overallRating || 0) ? ' filled' : ''}`}></i>
+                        ))}
+                      </span>
+                      <span className="product-info-reviews">
+                        {getRatingReviewList?.data?.totalReviews || 0} Reviews
+                        <i className="fa-solid fa-chevron-right" style={{ marginLeft: '5px' }}></i>
+                      </span>
                     </div>
+                  </div>
 
-                    <div className="booking-summary-box">
-                      <div className="booking-summary-price">
-                        <span className="booking-summary-currency">₹</span>
-                        <span className="booking-summary-amount">
-                          {getProductDetails?.data?.product?.priceDetails?.discountedPrice || getProductDetails?.data?.product?.priceDetails?.price}
-                        </span>
-                        <span className="booking-summary-type">/ decoration</span>
+                  <div className="booking-summary-box">
+                    <div className="booking-summary-price">
+                      <span className="booking-summary-currency">₹</span>
+                      <span className="booking-summary-amount">
+                        {getProductDetails?.data?.product?.priceDetails?.discountedPrice || getProductDetails?.data?.product?.priceDetails?.price}
+                      </span>
+                      <span className="booking-summary-type">/ Setup</span>
+                    </div>
+                    <div className="booking-summary-form">
+                      <div className="booking-summary-group">
+                        <span className="booking-summary-icon"><i className="fa-solid fa-location-dot"></i></span>
+                        <input
+                          type="text"
+                          className={`booking-summary-input ${errors?.pincodeError ? 'error' : ''}`}
+                          placeholder="Enter Pincode"
+                          name="pincode"
+                          value={pincode}
+                          onChange={pincode_valid ? handleInputChange : null}
+                          onKeyDown={handleKeyDown}
+                          maxLength="6"
+                        />
                       </div>
-                      <div className="booking-summary-form">
-                        <div className="booking-summary-group">
-                          <span className="booking-summary-icon"><i className="fa-solid fa-location-dot"></i></span>
-                          <input
-                            type="text"
-                            className={`booking-summary-input ${errors?.pincodeError ? 'error' : ''}`}
-                            placeholder="Enter Pincode"
-                            name="pincode"
-                            value={pincode}
-                            onChange={pincode_valid ? handleInputChange : null}
-                            onKeyDown={handleKeyDown}
-                            maxLength="6"
-                          />
-                        </div>
-                        <div className="booking-summary-hint">Don't know pincode?</div>
-                        <div className="booking-summary-group">
-                          <span className="booking-summary-icon"><i className="fa-solid fa-calendar"></i></span>
-                          <button
-                            className="booking-summary-date-btn"
-                            onClick={() => setShowBookingFlow(true)}
-                          >
-                            Select Date & Time
-                          </button>
-                        </div>
-                        <div className="booking-summary-note">
-                          Our decorator will come and complete the decoration <b>anytime between the selected time range</b>
-                        </div>
-
-                        {/* MAIN BOOK NOW BUTTON - SIMPLIFIED */}
+                      <div className="booking-summary-hint">Don't know pincode?</div>
+                      <div className="booking-summary-group">
+                        <span className="booking-summary-icon"><i className="fa-solid fa-calendar"></i></span>
                         <button
-                          className="booking-summary-book-btn"
+                          className="booking-summary-date-btn"
                           onClick={() => setShowBookingFlow(true)}
                         >
-                          BOOK NOW <span className="booking-summary-arrow"><i className="fa-solid fa-arrow-right"></i></span>
+                          Select Date & Time
                         </button>
                       </div>
+                      <div className="booking-summary-note">
+                        Our decorator will come and complete the decoration <b>anytime between the selected time range</b>
+                      </div>
+
+                      {/* MAIN BOOK NOW BUTTON */}
+                      <button
+                        className="booking-summary-book-btn"
+                        onClick={() => setShowBookingFlow(true)}
+                      >
+                        BOOK NOW <span className="booking-summary-arrow"><i className="fa-solid fa-arrow-right"></i></span>
+                      </button>
                     </div>
 
-                  </div>
 
-                  {/* Trust Indicators */}
-                  <div className="trust-indicators">
-                    <div className="trust-grid">
-                      <div className="trust-item">
-                        <div className="trust-icon">
-                          <img
-                            src={require("../../assets/images/safe-secure.png")}
-                            alt="Safe & Secure"
-                          />
+
+
+                    {/* Trust Indicators */}
+                    <div className="trust-indicators">
+                      <div className="trust-grid">
+                        <div className="trust-item">
+                          <div className="trust-icon">
+                            <img
+                              src={require("../../assets/images/safe-secure.png")}
+                              alt="Safe & Secure"
+                            />
+                          </div>
+                          <span className="trust-text">Safe & Secure Payments</span>
                         </div>
-                        <span className="trust-text">Safe & Secure Payments</span>
-                      </div>
-                      <div className="trust-item">
-                        <div className="trust-icon">
-                          <img
-                            src={require("../../assets/images/guarantee.png")}
-                            alt="Guarantee"
-                          />
+                        <div className="trust-item">
+                          <div className="trust-icon">
+                            <img
+                              src={require("../../assets/images/guarantee.png")}
+                              alt="Guarantee"
+                            />
+                          </div>
+                          <span className="trust-text">Service Excellence</span>
                         </div>
-                        <span className="trust-text">Service Excellence</span>
-                      </div>
-                      <div className="trust-item">
-                        <div className="trust-icon">
-                          <img
-                            src={require("../../assets/images/flexible.png")}
-                            alt="Flexible"
-                          />
+                        <div className="trust-item">
+                          <div className="trust-icon">
+                            <img
+                              src={require("../../assets/images/flexible.png")}
+                              alt="Flexible"
+                            />
+                          </div>
+                          <span className="trust-text">Flexible Plans</span>
                         </div>
-                        <span className="trust-text">Flexible Plans</span>
-                      </div>
-                      <div className="trust-item">
-                        <div className="trust-icon">
-                          <img
-                            src={require("../../assets/images/authentic.png")}
-                            alt="Authentic"
-                          />
+                        <div className="trust-item">
+                          <div className="trust-icon">
+                            <img
+                              src={require("../../assets/images/authentic.png")}
+                              alt="Authentic"
+                            />
+                          </div>
+                          <span className="trust-text">Authentic Work</span>
                         </div>
-                        <span className="trust-text">Authentic Work</span>
-                      </div>
-                      <div className="trust-item">
-                        <div class="trust-icon">
-                          <img
-                            src={require("../../assets/images/professional.png")}
-                            alt="Professional"
-                          />
+                        <div className="trust-item">
+                          <div class="trust-icon">
+                            <img
+                              src={require("../../assets/images/verified.png")}
+                              alt="Professional"
+                            />
+                          </div>
+                          <span className="trust-text">Verified Reviews</span>
                         </div>
-                        <span className="trust-text">Verified Reviews</span>
-                      </div>
-                      <div className="trust-item">
-                        <div className="trust-icon">
-                          <img
-                            src={require("../../assets/images/decor.png")}
-                            alt="Professional"
-                          />
+                        <div className="trust-item">
+                          <div className="trust-icon">
+                            <img
+                              src={require("../../assets/images/professional.png")}
+                              alt="Professional"
+                            />
+                          </div>
+                          <span className="trust-text">Expert Professionals</span>
                         </div>
-                        <span className="trust-text">Expert Professionals</span>
                       </div>
                     </div>
                   </div>
+
 
                   <div className="recommended-section">
                     <div className="recommended-tabs">
@@ -980,81 +1061,40 @@ const ProductDetails = () => {
                       </button>
                     </div>
 
-                    <div className="recommended-products-grid">
-                      {getProductDetails?.data?.similarProducts?.slice(0, 4)?.map((item, i) => (
-                        <div className="recommended-product-card" key={i}>
-                          <div className="recommended-product-image">
-                            <img
-                              src={item?.productimages?.at(0)}
-                              alt={item?.productDetails?.productname}
-                              onClick={() => handleProduct(item)}
-                            />
-                          </div>
-
-                          <div className="recommended-product-info">
-                            <h4 className="recommended-product-title">
-                              {item?.productDetails?.productname?.length > 40
-                                ? `${item?.productDetails?.productname?.substring(0, 40)}...`
-                                : item?.productDetails?.productname
-                              }
-                            </h4>
-
-                            <p className="recommended-product-description">
-                              {item?.productDetails?.producttitledescription?.length > 60
-                                ? `${item?.productDetails?.producttitledescription?.substring(0, 60)}...`
-                                : item?.productDetails?.producttitledescription || 'Beautiful decoration for your special occasions'
-                              }
-                            </p>
-
-                            <div className="recommended-product-link">
-                              <span onClick={() => handleProduct(item)}>see more</span>
-                            </div>
-
-                            <div className="recommended-product-footer">
-                              <div className="recommended-product-price">
-                                ₹{item?.priceDetails?.discountedPrice || item?.priceDetails?.price}
-                              </div>
-                              <label className="recommended-product-toggle">
-                                <input type="checkbox" />
-                                <span className="toggle-slider"></span>
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* If less than 4 similar products, show fallback cards */}
-                      {getProductDetails?.data?.similarProducts?.length < 4 && (
-                        Array.from({ length: 4 - (getProductDetails?.data?.similarProducts?.length || 0) }).map((_, i) => (
-                          <div className="recommended-product-card" key={`fallback-${i}`}>
+                    <div className="recommended-products-container">
+                      <div className="recommended-products-grid">
+                        {getProductDetails?.data?.similarProducts?.slice(0, 8)?.map((item, i) => (
+                          <div className="recommended-product-card" key={i}>
                             <div className="recommended-product-image">
                               <img
-                                src="https://via.placeholder.com/200x150/f0f0f0/666666?text=Product"
-                                alt="Recommended Product"
+                                src={item?.productimages?.at(0)}
+                                alt={item?.productDetails?.productname}
+                                onClick={() => handleProduct(item)}
                               />
                             </div>
 
                             <div className="recommended-product-info">
                               <h4 className="recommended-product-title">
-                                {i === 0 ? 'Double Door Balloon Arch' :
-                                  i === 1 ? 'L-Shaped Balloon Gate' :
-                                    i === 2 ? 'Balloon Entry Gate Decor' : 'Small Door Entrance'}
+                                {item?.productDetails?.productname?.length > 40
+                                  ? `${item?.productDetails?.productname?.substring(0, 40)}...`
+                                  : item?.productDetails?.productname
+                                }
                               </h4>
 
                               <p className="recommended-product-description">
-                                {i === 0 ? 'Add 200 Latex and Chrome Balloons gate for two door entrance...' :
-                                  i === 1 ? 'Add L-shaped balloon gate of 100 latex and metallic balloons by...' :
-                                    i === 2 ? '200 Latex & Chrome balloons gate for an entrance with lady...' :
-                                      '150 Latex and Chrome Balloons gate to cover single door using wall...'}
+                                {item?.productDetails?.producttitledescription?.length > 60
+                                  ? `${item?.productDetails?.producttitledescription?.substring(0, 60)}...`
+                                  : item?.productDetails?.producttitledescription || 'Beautiful decoration for your special occasions'
+                                }
                               </p>
 
                               <div className="recommended-product-link">
-                                <span>see more</span>
+                                <span onClick={() => handleProduct(item)}>see more</span>
                               </div>
 
                               <div className="recommended-product-footer">
                                 <div className="recommended-product-price">
-                                  ₹{i === 0 ? '1599' : i === 1 ? '999' : i === 2 ? '1999' : '1399'}
+                                  ₹{item?.priceDetails?.discountedPrice || item?.priceDetails?.price}
                                 </div>
                                 <label className="recommended-product-toggle">
                                   <input type="checkbox" />
@@ -1063,21 +1103,81 @@ const ProductDetails = () => {
                               </div>
                             </div>
                           </div>
-                        ))
-                      )}
+                        ))}
+
+                        {/* If less than 8 similar products, show fallback cards */}
+                        {getProductDetails?.data?.similarProducts?.length < 8 && (
+                          Array.from({ length: 8 - (getProductDetails?.data?.similarProducts?.length || 0) }).map((_, i) => (
+                            <div className="recommended-product-card" key={`fallback-${i}`}>
+                              <div className="recommended-product-image">
+                                <img
+                                  src="https://via.placeholder.com/200x150/f0f0f0/666666?text=Product"
+                                  alt="Recommended Product"
+                                />
+                              </div>
+
+                              <div className="recommended-product-info">
+                                <h4 className="recommended-product-title">
+                                  {i === 0 ? 'Double Door Balloon Arch' :
+                                    i === 1 ? 'L-Shaped Balloon Gate' :
+                                      i === 2 ? 'Balloon Entry Gate Decor' :
+                                        i === 3 ? 'Small Door Entrance' :
+                                          i === 4 ? 'Premium Balloon Arch' :
+                                            i === 5 ? 'Deluxe Gate Decoration' :
+                                              i === 6 ? 'Royal Entry Arch' : 'Classic Balloon Gate'}
+                                </h4>
+
+                                <p className="recommended-product-description">
+                                  {i === 0 ? 'Add 200 Latex and Chrome Balloons gate for two door entrance...' :
+                                    i === 1 ? 'Add L-shaped balloon gate of 100 latex and metallic balloons by...' :
+                                      i === 2 ? '200 Latex & Chrome balloons gate for an entrance with lady...' :
+                                        i === 3 ? '150 Latex and Chrome Balloons gate to cover single door using wall...' :
+                                          i === 4 ? 'Premium balloon arch with metallic finish and LED lights...' :
+                                            i === 5 ? 'Deluxe gate decoration with floral arrangements and balloons...' :
+                                              i === 6 ? 'Royal entry arch with gold and silver balloon combinations...' :
+                                                'Classic balloon gate with traditional color schemes...'}
+                                </p>
+
+                                <div className="recommended-product-link">
+                                  <span>see more</span>
+                                </div>
+
+                                <div className="recommended-product-footer">
+                                  <div className="recommended-product-price">
+                                    ₹{i === 0 ? '1599' : i === 1 ? '999' : i === 2 ? '1999' :
+                                      i === 3 ? '1399' : i === 4 ? '2299' : i === 5 ? '2799' :
+                                        i === 6 ? '3199' : '1799'}
+                                  </div>
+                                  <label className="recommended-product-toggle">
+                                    <input type="checkbox" />
+                                    <span className="toggle-slider"></span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Navigation arrows with functionality */}
+                      <button
+                        className={`recommended-nav-arrow recommended-nav-prev ${recommendedScrollPosition <= 0 ? 'disabled' : ''}`}
+                        onClick={() => handleRecommendedScroll('left')}
+                        disabled={recommendedScrollPosition <= 0}
+                      >
+                        <i className="fa-solid fa-chevron-left"></i>
+                      </button>
+                      <button
+                        className={`recommended-nav-arrow recommended-nav-next ${recommendedScrollPosition >= maxScrollPosition ? 'disabled' : ''}`}
+                        onClick={() => handleRecommendedScroll('right')}
+                        disabled={recommendedScrollPosition >= maxScrollPosition}
+                      >
+                        <i className="fa-solid fa-chevron-right"></i>
+                      </button>
                     </div>
-
-                    {/* Navigation arrows */}
-                    <button className="recommended-nav-arrow recommended-nav-prev">
-                      <i className="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button className="recommended-nav-arrow recommended-nav-next">
-                      <i className="fa-solid fa-chevron-right"></i>
-                    </button>
                   </div>
-
-                  {/* INCLUSIONS SECTION - EXACT MATCH TO UI */}
-                  <div className="product-info-wrapper inclusions-section">
+                  {/* INCLUSIONS SECTION */}
+                  <div className="inclusions-section">
                     <div className="section-title">
                       <i className="fa-solid fa-list-check"></i>
                       Inclusions
@@ -1096,8 +1196,8 @@ const ProductDetails = () => {
                     </div>
                   </div>
 
-                  {/* EXPERIENCE SECTION - EXACT MATCH TO UI */}
-                  <div className="product-info-wrapper experience-section">
+                  {/* EXPERIENCE SECTION */}
+                  <div className="experience-section">
                     <div className="section-title">
                       <i className="fa-solid fa-info-circle"></i>
                       About The Experience
@@ -1119,7 +1219,7 @@ const ProductDetails = () => {
                     </div>
                   </div>
 
-                  {/* REVIEWS SECTION - EXACT MATCH TO UI */}
+                  {/* REVIEWS SECTION */}
                   <div className="reviews-section-card">
                     <div className="section-title">
                       <i className="fa-solid fa-star reviews-section-icon" />
@@ -1170,7 +1270,7 @@ const ProductDetails = () => {
                     </div>
                   </div>
 
-                  {/* NEED TO KNOW SECTION - EXACT MATCH TO UI */}
+                  {/* NEED TO KNOW SECTION */}
                   <div className="need-to-know-section">
                     <div className="section-title">
                       <i className="fas fa-info-circle needtoknow-icon" />
@@ -1181,7 +1281,7 @@ const ProductDetails = () => {
                     }} />
                   </div>
 
-                  {/* FAQ SECTION - EXACT MATCH TO UI */}
+                  {/* FAQ SECTION */}
                   <div className="faq-section">
                     <div className="section-title">
                       <i className="fas fa-question-circle faq-icon" />
@@ -1200,7 +1300,7 @@ const ProductDetails = () => {
                     </div>
                   </div>
 
-                  {/* LOCATION SECTION - EXACT MATCH TO UI */}
+                  {/* LOCATION SECTION */}
                   <div className="location-section">
                     <div className="section-title">
                       <i className="fas fa-map-marker-alt location-icon" />
@@ -1209,7 +1309,7 @@ const ProductDetails = () => {
                     <div className="location-content">At Your Home</div>
                   </div>
 
-                  {/* CANCELLATION POLICY SECTION - EXACT MATCH TO UI */}
+                  {/* CANCELLATION POLICY SECTION */}
                   <div className="cancellation-section">
                     <div className="section-title">
                       <i className="fa-solid fa-ban cancellation-icon" />
@@ -1280,80 +1380,82 @@ const ProductDetails = () => {
 
           <div className="similar-products-grid">
             {getProductDetails?.data?.similarProducts?.length > 0
-              ? getProductDetails?.data?.similarProducts?.map((item, i) => (
-                <div className="product-card" key={i}>
-                  <div className="product-image-wrapper">
-                    <img
-                      onClick={() => handleProduct(item)}
-                      src={item?.productimages?.at(0)}
-                      alt={item?.productDetails?.productname}
-                      className="product-image"
-                    />
-
-                    {/* Favorite/Heart Button */}
-                    <button className="product-favorite">
-                      <i className="fa-regular fa-heart"></i>
-                    </button>
-
-                    {/* Discount Badge */}
-                    {item?.priceDetails?.discountedPrice && (
-                      <div className="discount-badge">
-                        {Math.round(
-                          ((Number(item?.priceDetails?.price) -
-                            Number(item?.priceDetails?.discountedPrice)) /
-                            Number(item?.priceDetails?.price)) *
-                          100
-                        )}% OFF
-                      </div>
-                    )}
-
-                    {/* Hover Overlay */}
-                    <div className="product-overlay">
-                      <button
-                        className="quick-view-btn"
+              ? getProductDetails?.data?.similarProducts?.map((item, i) => {
+                const productId = item?.productDetails?.id || item?.productDetails?._id || i;
+                const isFavourite = favouriteProducts.includes(productId);
+                return (
+                  <div className="product-card" key={productId}>
+                    <div className="product-image-wrapper">
+                      <img
                         onClick={() => handleProduct(item)}
+                        src={item?.productimages?.at(0)}
+                        alt={item?.productDetails?.productname}
+                        className="product-image"
+                      />
+                      {/* Favourite button */}
+                      <button
+                        className="product-favorite"
+                        onClick={() => handleFavouriteToggle(productId)}
+                        aria-label={isFavourite ? "Unfavourite" : "Favourite"}
+                        style={{ background: "none", border: "none", cursor: "pointer", position: "absolute", top: "15px", right: "15px", zIndex: 2 }}
                       >
-                        <i className="fa-solid fa-eye"></i>
-                        Quick View
+                        <i className={isFavourite ? "fa-solid fa-heart" : "fa-regular fa-heart"} style={{ color: isFavourite ? "#e5097f" : "#b1b1b1", fontSize: "1.5rem" }}></i>
                       </button>
+                     
+                      {item?.priceDetails?.discountedPrice && (
+                        <div className="discount-badge">
+                          {Math.round(
+                            ((Number(item?.priceDetails?.price) -
+                              Number(item?.priceDetails?.discountedPrice)) /
+                              Number(item?.priceDetails?.price)) *
+                            100
+                          )}% OFF
+                        </div>
+                      )}
+                      <div className="product-overlay">
+                        <button
+                          className="quick-view-btn"
+                          onClick={() => handleProduct(item)}
+                        >
+                          <i className="fa-solid fa-eye"></i>
+                          Quick View
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="product-info">
-                    <h3 className="product-name">
-                      {item?.productDetails?.productname}
-                    </h3>
-
-                    <div className="product-pricing">
-                      {item?.priceDetails?.discountedPrice ? (
-                        <div className="price-container">
+                    <div className="product-info">
+                      <h3 className="product-name">
+                        {item?.productDetails?.productname}
+                      </h3>
+                      <div className="product-pricing">
+                        {item?.priceDetails?.discountedPrice ? (
+                          <div className="price-container">
+                            <span className="current-price">
+                              ₹{item?.priceDetails?.discountedPrice}
+                            </span>
+                            <span className="original-price">
+                              ₹{item?.priceDetails?.price}
+                            </span>
+                          </div>
+                        ) : (
                           <span className="current-price">
-                            ₹{item?.priceDetails?.discountedPrice}
-                          </span>
-                          <span className="original-price">
                             ₹{item?.priceDetails?.price}
                           </span>
-                        </div>
-                      ) : (
-                        <span className="current-price">
-                          ₹{item?.priceDetails?.price}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="product-rating">
-                      <div className="stars">
-                        {Array.from({ length: 5 }).map((_, index) => (
-                          <i key={index} className="fa-solid fa-star"></i>
-                        ))}
+                        )}
                       </div>
-                      <span className="rating-count">
-                        4.{Math.floor(Math.random() * 9) + 1} ({10 + i * 3 + Math.floor(Math.random() * 50)})
-                      </span>
+                      <div className="product-rating">
+                        <div className="stars">
+                          {Array.from({ length: 5 }).map((_, index) => (
+                            <i key={index} className="fa-solid fa-star"></i>
+                          ))}
+                        </div>
+                        <span className="rating-count">
+                          4.{Math.floor(Math.random() * 9) + 1} ({10 + i * 3 + Math.floor(Math.random() * 50)})
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
               : (
                 <div className="no-products">
                   <i className="fa-solid fa-box-open"></i>
@@ -1385,7 +1487,7 @@ const ProductDetails = () => {
                       className="recently-viewed-image"
                     />
 
-                    {/* Favorite/Heart Button */}
+                    {/* Favorite Button */}
                     <button className="recently-viewed-favorite">
                       <i className="fa-regular fa-heart"></i>
                     </button>
@@ -1450,41 +1552,41 @@ const ProductDetails = () => {
             </h2>
           </div>
 
-          
-    <div className="similar-categories-tags">
-      {getProductDetails?.data?.product?.productDetails?.productcategory && (
-        <>
-          <span className="category-tag" onClick={() => handleCategoryClick(getProductDetails?.data?.product?.productDetails?.productcategory)}>
-            #{getProductDetails?.data?.product?.productDetails?.productcategory}
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('birthday-decorations')}>
-            #BirthdayDecorationsforHomeorRoom
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('birthday-decors')}>
-            #BirthdayDecorsForHer
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('new-year-party')}>
-            #NewYearParty
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('new-year-special')}>
-            #NewYearSpecial
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('balloon-decorations')}>
-            #Balloon&RoomDecorations
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('house-party')}>
-            #HousePartyDecorations
-          </span>
-          <span className="category-tag" onClick={() => handleCategoryClick('available-now')}>
-            #AvailableNow
-          </span>
-        </>
-      )}
-    </div>
-  </div>
-</div>
 
-      {/* Event Partner Section - EXACT MATCH TO UI */}
+          <div className="similar-categories-tags">
+            {getProductDetails?.data?.product?.productDetails?.productcategory && (
+              <>
+                <span className="category-tag" onClick={() => handleCategoryClick(getProductDetails?.data?.product?.productDetails?.productcategory)}>
+                  #{getProductDetails?.data?.product?.productDetails?.productcategory}
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('birthday-decorations')}>
+                  #BirthdayDecorationsforHomeorRoom
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('birthday-decors')}>
+                  #BirthdayDecorsForHer
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('new-year-party')}>
+                  #NewYearParty
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('new-year-special')}>
+                  #NewYearSpecial
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('balloon-decorations')}>
+                  #Balloon&RoomDecorations
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('house-party')}>
+                  #HousePartyDecorations
+                </span>
+                <span className="category-tag" onClick={() => handleCategoryClick('available-now')}>
+                  #AvailableNow
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Event Partner Section*/}
       <div className="event-partner-section">
         <div className="container-fluid">
           <h2 className="event-partner-title">
@@ -1536,119 +1638,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Host Your Next Party With Ease Section - EXACT MATCH TO UI */}
-      <div className="host-party-section">
-        <div className="container-fluid">
-          <h2 className="host-party-title">Host Your Next Party With Ease</h2>
 
-          {/* City Tabs */}
-          <div className="city-tabs">
-            <button className="city-tab active">Delhi NCR</button>
-            <button className="city-tab">Gurugram/Gurgaon</button>
-            <button className="city-tab">Noida</button>
-            <button className="city-tab">Bangalore</button>
-            <button className="city-tab">Hyderabad</button>
-            <button className="city-tab">Mumbai</button>
-            <button className="city-tab">Pune</button>
-            <button className="city-tab">Ahmedabad</button>
-            <button className="city-tab">Lucknow</button>
-            <button className="city-tab">Chennai</button>
-          </div>
-
-          {/* Services Grid */}
-          <div className="services-grid">
-            <div className="service-category">
-              <h3 className="service-title">Birthday Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Party Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Candlelight Dinner</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Personalised Gifts</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Party Entertainment</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Corporate Events</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Food Catering</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Photography Services</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Anniversary Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Baby Shower Celebration</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Baby Welcome Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Christmas/Xmas Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Kids Birthday Celebration</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">First Birthday Decoration</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Diwali Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Haldi/Mehndi Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Halloween Theme Decorations</h3>
-              <p className="service-location">In Delhi NCR</p>
-            </div>
-
-            <div className="service-category">
-              <h3 className="service-title">Show More</h3>
-              <p className="service-location"></p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <Modal
         className="ModalBox LargeModal"
@@ -1804,6 +1794,7 @@ const ProductDetails = () => {
         show={showBookingFlow}
         onHide={() => setShowBookingFlow(false)}
         onComplete={handleBookingFlowComplete}
+        selectedProduct={getProductDetails?.data?.product}
       />
 
       {/* Fixed Bottom Booking Bar */}
