@@ -57,16 +57,32 @@ const initialState = {
 const ProductDetails = () => {
 
   // State to track favourite products (by id)
-  const [favouriteProducts, setFavouriteProducts] = useState([]);
+  // const [favouriteProducts, setFavouriteProducts] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
 
   // Toggle favourite status for a product
-  const handleFavouriteToggle = (productId) => {
-    setFavouriteProducts((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
-  };
+  // const handleFavouriteToggle = (productId) => {
+  //   setFavouriteProducts((prev) =>
+  //     prev.includes(productId)
+  //       ? prev.filter((id) => id !== productId)
+  //       : [...prev, productId]
+  //   );
+  // };
+
+  const handleFavouriteToggle = (product) => {
+  const productId = product._id || product.productDetails?.id;
+  const isInWishlist = isProductInWishlist(productId);
+  
+  if (isInWishlist) {
+    const updatedWishlist = removeFromWishlist(productId);
+    setWishlistItems(updatedWishlist);
+    toast.success("Removed from wishlist!");
+  } else {
+    const updatedWishlist = addToWishlist(product);
+    setWishlistItems(updatedWishlist);
+    toast.success("Added to wishlist!");
+  }
+};
   const [showBookingFlow, setShowBookingFlow] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
@@ -671,6 +687,63 @@ const ProductDetails = () => {
     });
   };
 
+  
+const getWishlistItems = () => {
+  try {
+    const wishlist = localStorage.getItem('userWishlist');
+    return wishlist ? JSON.parse(wishlist) : [];
+  } catch (error) {
+    console.error('Error getting wishlist:', error);
+    return [];
+  }
+};
+
+const addToWishlist = (product) => {
+  try {
+    const wishlist = getWishlistItems();
+    const productToAdd = {
+      id: product._id || product.productDetails?.id,
+      name: product.productDetails?.productname,
+      image: product.productimages?.[0],
+      originalPrice: product.priceDetails?.price,
+      discountedPrice: product.priceDetails?.discountedPrice,
+      productData: product,
+      addedAt: new Date().toISOString()
+    };
+
+    const existingIndex = wishlist.findIndex(item => item.id === productToAdd.id);
+    
+    if (existingIndex === -1) {
+      wishlist.push(productToAdd);
+      localStorage.setItem('userWishlist', JSON.stringify(wishlist));
+      window.dispatchEvent(new Event('wishlistUpdated'));
+      return wishlist;
+    }
+    return wishlist;
+  } catch (error) {
+    console.error('Error adding to wishlist:', error);
+    return [];
+  }
+};
+
+const removeFromWishlist = (productId) => {
+  try {
+    const wishlist = getWishlistItems();
+    const updatedWishlist = wishlist.filter(item => item.id !== productId);
+    localStorage.setItem('userWishlist', JSON.stringify(updatedWishlist));
+    window.dispatchEvent(new Event('wishlistUpdated'));
+    return updatedWishlist;
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    return [];
+  }
+};
+
+const isProductInWishlist = (productId) => {
+  const wishlist = getWishlistItems();
+  return wishlist.some(item => item.id === productId);
+};
+
 
   useEffect(() => {
     if (customization?.length > 0) {
@@ -800,6 +873,27 @@ const ProductDetails = () => {
       recentlyViewedProducts: recentlyViewed
     });
   }, []);
+
+  useEffect(() => {
+  const loadWishlistItems = () => {
+    const items = getWishlistItems();
+    setWishlistItems(items);
+  };
+
+  loadWishlistItems();
+
+  const handleStorageChange = () => {
+    loadWishlistItems();
+  };
+
+  window.addEventListener('storage', handleStorageChange);
+  window.addEventListener('wishlistUpdated', handleStorageChange);
+
+  return () => {
+    window.removeEventListener('storage', handleStorageChange);
+    window.removeEventListener('wishlistUpdated', handleStorageChange);
+  };
+}, []);
 
   useEffect(() => {
     if (getProductDetails?.data?.product) {
@@ -1615,14 +1709,14 @@ const ProductDetails = () => {
             <h2 className="section-title">
               Similar Products
             </h2>
-            <a href="#" className="view-more-link">View More</a>
+            <a href="/" className="view-more-link">View More</a>
           </div>
 
           <div className="similar-products-grid">
             {getProductDetails?.data?.similarProducts?.length > 0
               ? getProductDetails?.data?.similarProducts?.map((item, i) => {
                 const productId = item?.productDetails?.id || item?.productDetails?._id || i;
-                const isFavourite = favouriteProducts.includes(productId);
+                const isFavourite = isProductInWishlist(item._id || item.productDetails?.id);
                 return (
                   <div className="product-card" key={productId}>
                     <div className="product-image-wrapper">
@@ -1635,7 +1729,7 @@ const ProductDetails = () => {
                       {/* Favourite button */}
                       <button
                         className="product-favorite"
-                        onClick={() => handleFavouriteToggle(productId)}
+                        onClick={() => handleFavouriteToggle(item)}
                         aria-label={isFavourite ? "Unfavourite" : "Favourite"}
                         style={{ background: "none", border: "none", cursor: "pointer", position: "absolute", top: "15px", right: "15px", zIndex: 2 }}
                       >
@@ -1707,7 +1801,6 @@ const ProductDetails = () => {
       </div>
 
       {/* Recently Viewed Section */}
-      {/* Recently Viewed Section */}
       <div className="recently-viewed-section">
         <div className="container-fluid">
           <div className="section-header">
@@ -1731,9 +1824,9 @@ const ProductDetails = () => {
                     {/* Favorite Button */}
                     <button
                       className="recently-viewed-favorite"
-                      onClick={() => handleFavouriteToggle(item._id)}
+                      onClick={() => handleFavouriteToggle(item)}
                     >
-                      <i className={favouriteProducts.includes(item._id) ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
+                      <i className={isProductInWishlist(item._id || item.productDetails?.id) ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
                     </button>
 
 
