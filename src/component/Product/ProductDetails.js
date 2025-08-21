@@ -10,7 +10,7 @@ import {
 import { toast, useToast } from "react-toastify";
 import { Modal } from "react-bootstrap";
 import { addtoCart } from "../../reduxToolkit/Slices/Cart/bookingApis";
-import { convertTimeFormat, formatDate, addToRecentlyViewed, getRecentlyViewed, clearRecentlyViewed } from "../../Utils/commonFunctions.js";
+import { convertTimeFormat, formatDate } from "../../Utils/commonFunctions";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.min.css";
 import Lightbox from "react-image-lightbox";
@@ -50,8 +50,7 @@ const initialState = {
     photos: []
   },
   hoveredRating: 0,
-  isSubmittingReview: false,
-  recentlyViewedProducts: []
+  isSubmittingReview: false
 };
 
 const ProductDetails = () => {
@@ -104,8 +103,7 @@ const ProductDetails = () => {
     showAddReviewModal,
     reviewData,
     hoveredRating,
-    isSubmittingReview,
-    recentlyViewedProducts
+    isSubmittingReview
   } = iState;
   const { getProductDetails, getSlotList, getStaticSlotList, loader } =
     useSelector((state) => state.productList);
@@ -113,7 +111,6 @@ const ProductDetails = () => {
     (state) => state.reviewRating
   );
   const { getAddressList } = useSelector((state) => state.auth);
-
 
   const handleCategoryClick = (categoryName) => {
     try {
@@ -286,14 +283,37 @@ const ProductDetails = () => {
     return formIsValid;
   };
 
-  // booking flow handler
+  // Helper function to calculate total booking amount
+  const calculateBookingTotal = (bookingData) => {
+    const basePrice = getProductDetails?.data?.product?.priceDetails?.discountedPrice ||
+      getProductDetails?.data?.product?.priceDetails?.price || 0;
+    
+    const customizationsTotal = bookingData?.selectedCustomizations?.reduce((sum, item) => {
+      return sum + (Number(item.price) || 0);
+    }, 0) || 0;
+    
+    return basePrice + customizationsTotal;
+  };
+
+  // Fixed booking flow handler
   const handleBookingFlowComplete = (bookingData) => {
     console.log('Booking completed with data:', bookingData);
     setShowBookingFlow(false);
 
-    // Navigate to checkout or handle booking completion
+    // Get user details (might be from props, localStorage, or bookingData)
+    const currentUserDetail = bookingData?.loginData?.user || userDetail;
+    
+    if (!currentUserDetail) {
+      console.error('No user details available for booking');
+      toast.error('Please login to complete booking');
+      return;
+    }
+
+    console.log('Processing booking for user:', currentUserDetail);
+
+    // Create cart data with all the booking information
     const cartData = {
-      userId: userDetail?._id,
+      userId: currentUserDetail?._id || currentUserDetail?.userId,
       productId: getProductDetails?.data?.product?._id,
       prodname: getProductDetails?.data?.product?.productDetails?.productname,
       prodprice: getProductDetails?.data?.product?.priceDetails?.discountedPrice
@@ -303,23 +323,28 @@ const ProductDetails = () => {
       productDescription: getProductDetails?.data?.product?.productDetails?.producttitledescription,
       dateAdded: bookingData.selectedDate,
       quantity: 1,
-      slot: bookingData.selectedTimeSlot?.time,
+      slot: bookingData.selectedTimeSlot?.time || bookingData.selectedTimeSlot,
       customization: bookingData.selectedCustomizations || [],
-      totalAmount: getProductDetails?.data?.product?.priceDetails?.discountedPrice
-        ? getProductDetails?.data?.product?.priceDetails?.discountedPrice +
-        (bookingData.selectedCustomizations?.reduce((sum, item) => sum + item.price, 0) || 0)
-        : getProductDetails?.data?.product?.priceDetails?.price +
-        (bookingData.selectedCustomizations?.reduce((sum, item) => sum + item.price, 0) || 0),
+      totalAmount: calculateBookingTotal(bookingData),
     };
 
+    console.log('Cart data being sent:', cartData);
+
+    // Add to cart and redirect to checkout
     dispatch(addtoCart(cartData))
       .then((res) => {
-        if (res?.payload?.message == "Added Successfully") {
+        console.log('Add to cart response:', res);
+        if (res?.payload?.message === "Added Successfully") {
+          console.log('Navigating to checkout with:', cartData);
           navigate("/checkout-1", { state: cartData });
+        } else {
+          console.error('Failed to add to cart:', res);
+          toast.error('Failed to add item to cart. Please try again.');
         }
       })
       .catch((err) => {
         console.error('Cart error:', err);
+        toast.error('Something went wrong. Please try again.');
       });
   };
 
@@ -545,7 +570,6 @@ const ProductDetails = () => {
       });
   };
 
-
   const handleReviewRatingClick = (rating) => {
     updateState({
       ...iState,
@@ -671,7 +695,6 @@ const ProductDetails = () => {
     });
   };
 
-
   useEffect(() => {
     if (customization?.length > 0) {
       const data = {
@@ -774,7 +797,6 @@ const ProductDetails = () => {
     );
   }, [rating]);
 
-
   useEffect(() => {
     const container = document.querySelector('.recommended-products-grid');
     if (container) {
@@ -792,31 +814,6 @@ const ProductDetails = () => {
       };
     }
   }, [getProductDetails?.data?.similarProducts]);
-
-  useEffect(() => {
-    const recentlyViewed = getRecentlyViewed();
-    updateState({
-      ...iState,
-      recentlyViewedProducts: recentlyViewed
-    });
-  }, []);
-
-  useEffect(() => {
-    if (getProductDetails?.data?.product) {
-      // Add current product to recently viewed
-      const updatedRecentlyViewed = addToRecentlyViewed(getProductDetails.data.product);
-
-      // Update state with new recently viewed list (excluding current product)
-      const filteredRecentlyViewed = updatedRecentlyViewed.filter(
-        product => product._id !== getProductDetails.data.product._id
-      );
-
-      updateState({
-        ...iState,
-        recentlyViewedProducts: filteredRecentlyViewed
-      });
-    }
-  }, [getProductDetails]);
 
   const FixedBottomBookingBar = ({
     productPrice,
@@ -1035,7 +1032,6 @@ const ProductDetails = () => {
 
                 {/* Product Information */}
                 <div className="col-lg-6 col-12">
-
                   <div className="product-info">
                     <nav className="product-info-breadcrumb">
                       <span className="breadcrumb-link" onClick={() => navigate("/")}>Home</span>
@@ -1108,9 +1104,6 @@ const ProductDetails = () => {
                       </button>
                     </div>
 
-
-
-
                     {/* Trust Indicators */}
                     <div className="trust-indicators">
                       <div className="trust-grid">
@@ -1171,7 +1164,6 @@ const ProductDetails = () => {
                       </div>
                     </div>
                   </div>
-
 
                   <div className="recommended-section">
                     <div className="recommended-tabs">
@@ -1343,6 +1335,7 @@ const ProductDetails = () => {
                       </button>
                     </div>
                   </div>
+
                   {/* INCLUSIONS SECTION */}
                   <div className="inclusions-section">
                     <div className="section-title">
@@ -1707,7 +1700,6 @@ const ProductDetails = () => {
       </div>
 
       {/* Recently Viewed Section */}
-      {/* Recently Viewed Section */}
       <div className="recently-viewed-section">
         <div className="container-fluid">
           <div className="section-header">
@@ -1717,9 +1709,9 @@ const ProductDetails = () => {
           </div>
 
           <div className="recently-viewed-grid">
-            {recentlyViewedProducts?.length > 0 ? (
-              recentlyViewedProducts?.slice(0, 8)?.map((item, i) => (
-                <div className="recently-viewed-card" key={item._id || i}>
+            {getProductDetails?.data?.recentlyViewed?.length > 0 ? (
+              getProductDetails?.data?.recentlyViewed?.map((item, i) => (
+                <div className="recently-viewed-card" key={i}>
                   <div className="recently-viewed-image-wrapper">
                     <img
                       onClick={() => handleProduct(item)}
@@ -1729,25 +1721,14 @@ const ProductDetails = () => {
                     />
 
                     {/* Favorite Button */}
-                    <button
-                      className="recently-viewed-favorite"
-                      onClick={() => handleFavouriteToggle(item._id)}
-                    >
-                      <i className={favouriteProducts.includes(item._id) ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
+                    <button className="recently-viewed-favorite">
+                      <i className="fa-regular fa-heart"></i>
                     </button>
 
-
-                    {/* Discount Badge */}
-                    {item?.priceDetails?.discountedPrice && (
-                      <div className="discount-badge">
-                        {Math.round(
-                          ((Number(item?.priceDetails?.price) -
-                            Number(item?.priceDetails?.discountedPrice)) /
-                            Number(item?.priceDetails?.price)) *
-                          100
-                        )}% OFF
-                      </div>
-                    )}
+                    {/* Location Badge */}
+                    <div className="location-badge">
+                      At Your Location
+                    </div>
 
                     {/* Hover Overlay */}
                     <div className="recently-viewed-overlay">
@@ -1767,20 +1748,9 @@ const ProductDetails = () => {
                     </h3>
 
                     <div className="recently-viewed-pricing">
-                      {item?.priceDetails?.discountedPrice ? (
-                        <div className="price-container">
-                          <span className="recently-viewed-price">
-                            ₹{item?.priceDetails?.discountedPrice}
-                          </span>
-                          <span className="recently-viewed-original-price">
-                            ₹{item?.priceDetails?.price}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="recently-viewed-price">
-                          ₹{item?.priceDetails?.price}
-                        </span>
-                      )}
+                      <span className="recently-viewed-price">
+                        ₹{item?.priceDetails?.discountedPrice || item?.priceDetails?.price}
+                      </span>
                     </div>
 
                     <div className="recently-viewed-rating">
@@ -1793,45 +1763,16 @@ const ProductDetails = () => {
                         {(4.0 + (i * 0.2)).toFixed(1)}
                       </span>
                     </div>
-
-                    {/* Add "Viewed on" timestamp */}
-                    <div className="recently-viewed-timestamp">
-                      <i className="fa-solid fa-clock"></i>
-                      <span>Recently viewed</span>
-                    </div>
                   </div>
                 </div>
               ))
             ) : (
               <div className="no-recently-viewed">
                 <i className="fa-solid fa-clock-rotate-left"></i>
-                <div className="no-recently-viewed-content">
-                  <h4>No recently viewed items</h4>
-                  <p>Products you view will appear here</p>
-                  
-                </div>
+                <p>No recently viewed items</p>
               </div>
             )}
           </div>
-
-          {/* Clear Recently Viewed Button */}
-          {recentlyViewedProducts?.length > 0 && (
-            <div className="recently-viewed-actions">
-              <button
-                className="clear-recently-viewed-btn"
-                onClick={() => {
-                  clearRecentlyViewed();
-                  updateState({
-                    ...iState,
-                    recentlyViewedProducts: []
-                  });
-                }}
-              >
-                <i className="fa-solid fa-trash"></i>
-                Clear Recently Viewed
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -1843,7 +1784,6 @@ const ProductDetails = () => {
               Similar Categories
             </h2>
           </div>
-
 
           <div className="similar-categories-tags">
             {getProductDetails?.data?.product?.productDetails?.productcategory && (
@@ -1929,8 +1869,6 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-
-
 
       <Modal
         className="ModalBox LargeModal"
@@ -2097,6 +2035,7 @@ const ProductDetails = () => {
         onBookNowClick={() => setShowBookingFlow(true)}
         activeTab="Overview"
       />
+
       <Modal
         className="ModalBox ReviewModal"
         show={showAddReviewModal}
@@ -2228,18 +2167,6 @@ const ProductDetails = () => {
                 )}
               </div>
             </div>
-
-            {/* Guidelines */}
-            {/* <div className="review-guidelines">
-              <h6>Review Guidelines:</h6>
-              <ul>
-                <li>Be honest and helpful to other customers</li>
-                <li>Focus on the product quality and service</li>
-                <li>Avoid inappropriate language</li>
-                <li>Include specific details about your experience</li>
-                <li>Upload clear photos that show the actual product/service</li>
-              </ul>
-            </div> */}
 
             {/* Submit Buttons */}
             <div className="review-form-actions">

@@ -339,9 +339,9 @@ const LoginModal = ({
     }
   };
 
-  // Handle Social Login
+  // Handle Social Login - FIXED VERSION
   const handleSocialLogin = async (method) => {
-    console.log('Social login:', method);
+    console.log('Social login initiated:', method);
     setIsLoading(true);
 
     try {
@@ -350,8 +350,27 @@ const LoginModal = ({
         try {
           const result = await handleGoogleLoginPopup();
           console.log('Google login result:', result);
-          handleSocialLoginSuccess(result, setCookie, dispatch, onLoginSuccess);
-          onHide(); // Close the modal on successful login
+          
+          if (result.success) {
+            // Store user data
+            window.localStorage.setItem("LennyUserDetail", JSON.stringify(result.userData));
+            window.localStorage.setItem("LoginTimer", "false");
+            setCookie("LennyCheck", true, { path: "/" }, { expires: new Date("9999-12-31") });
+            dispatch(userDetailState(true));
+
+            toast.success(result.message);
+            
+            // Call success callback with proper data structure
+            onLoginSuccess({
+              method: "google",
+              userData: result.userData,
+              user: result.userData // Add this for compatibility
+            });
+            
+            onHide(); // Close the modal on successful login
+          } else {
+            throw new Error(result.error || 'Google login failed');
+          }
         } catch (error) {
           console.error('Google popup login failed, trying original method:', error);
           
@@ -359,8 +378,27 @@ const LoginModal = ({
           try {
             const result = await handleGoogleLogin();
             console.log('Google login fallback result:', result);
-            handleSocialLoginSuccess(result, setCookie, dispatch, onLoginSuccess);
-            onHide(); // Close the modal on successful login
+            
+            if (result.success) {
+              // Store user data
+              window.localStorage.setItem("LennyUserDetail", JSON.stringify(result.userData));
+              window.localStorage.setItem("LoginTimer", "false");
+              setCookie("LennyCheck", true, { path: "/" }, { expires: new Date("9999-12-31") });
+              dispatch(userDetailState(true));
+
+              toast.success(result.message);
+              
+              // Call success callback
+              onLoginSuccess({
+                method: "google",
+                userData: result.userData,
+                user: result.userData // Add this for compatibility
+              });
+              
+              onHide(); // Close the modal on successful login
+            } else {
+              throw new Error(result.error || 'Google login failed');
+            }
           } catch (fallbackError) {
             console.error('Both Google login methods failed:', fallbackError);
             handleSocialLoginError(fallbackError, 'Google');
@@ -370,8 +408,27 @@ const LoginModal = ({
         try {
           const result = await handleFacebookLogin();
           console.log('Facebook login result:', result);
-          handleSocialLoginSuccess(result, setCookie, dispatch, onLoginSuccess);
-          onHide(); // Close the modal on successful login
+          
+          if (result.success) {
+            // Store user data
+            window.localStorage.setItem("LennyUserDetail", JSON.stringify(result.userData));
+            window.localStorage.setItem("LoginTimer", "false");
+            setCookie("LennyCheck", true, { path: "/" }, { expires: new Date("9999-12-31") });
+            dispatch(userDetailState(true));
+
+            toast.success(result.message);
+            
+            // Call success callback
+            onLoginSuccess({
+              method: "facebook",
+              userData: result.userData,
+              user: result.userData // Add this for compatibility
+            });
+            
+            onHide(); // Close the modal on successful login
+          } else {
+            throw new Error(result.error || 'Facebook login failed');
+          }
         } catch (error) {
           console.error('Facebook login failed:', error);
           handleSocialLoginError(error, 'Facebook');

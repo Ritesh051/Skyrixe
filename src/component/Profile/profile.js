@@ -43,7 +43,10 @@ const initialState = {
   review_image: "",
   cancelModal: false,
   orderToCancel: null,
+<<<<<<< HEAD
   cancellingOrders: [],
+=======
+>>>>>>> d20b5ea8f26a1e7ed10e32782289b9eeb86c2ae8
 };
 
 const Profile = () => {
@@ -74,7 +77,6 @@ const Profile = () => {
     review_image,
     cancelModal,
     orderToCancel,
-    cancellingOrders,
   } = iState;
   const { type } = useParams();
   const navigate = useNavigate();
@@ -232,9 +234,10 @@ const Profile = () => {
 
   const confirmCancelOrder = () => {
     if (orderToCancel) {
-      // Ensure cancellingOrders is an array before spreading
-      const currentCancellingOrders = Array.isArray(cancellingOrders) ? cancellingOrders : [];
+      // Since cancelOrder is not available, we'll create a mock implementation
+      // You'll need to implement the actual cancelOrder API call in your bookingApis file
       
+<<<<<<< HEAD
       // Add order to cancelling list to show loading state
       const updatedState = {
         ...iState,
@@ -245,6 +248,8 @@ const Profile = () => {
       
       updateState(updatedState);
       
+=======
+>>>>>>> d20b5ea8f26a1e7ed10e32782289b9eeb86c2ae8
       const cancelData = {
         id: orderToCancel._id,
         userId: userDetail?._id,
@@ -265,7 +270,50 @@ const Profile = () => {
       //   }, 2000); // Increased to 2 seconds to better show the loading state
       // });
 
+<<<<<<< HEAD
       // mockCancelOrder
+=======
+      // Mock API call - Replace this with your actual API implementation
+      const mockCancelOrder = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Simulate successful cancellation
+          resolve({
+            payload: {
+              status: 200,
+              data: {
+                message: "Order cancelled successfully"
+              }
+            }
+          });
+        }, 1000);
+      });
+
+      mockCancelOrder
+        .then((res) => {
+          if (res?.payload?.status === 200) {
+            toast.success("Order cancelled successfully!");
+            // Refresh the orders
+            dispatch(upcomingBooking({ userId: userDetail?._id }));
+            dispatch(pastBooking({ userId: userDetail?._id }));
+          } else {
+            toast.error("Failed to cancel order");
+          }
+        })
+        .catch((err) => {
+          console.log({ err });
+          toast.error("Error cancelling order");
+        })
+        .finally(() => {
+          updateState({
+            ...iState,
+            cancelModal: false,
+            orderToCancel: null,
+          });
+        });
+
+      // TODO: Replace the above mock implementation with:
+      // dispatch(cancelOrder(cancelData))
+>>>>>>> d20b5ea8f26a1e7ed10e32782289b9eeb86c2ae8
       //   .then((res) => {
       //     if (res?.payload?.status === 200) {
       //       toast.success("Order cancelled successfully!");
@@ -281,6 +329,7 @@ const Profile = () => {
       //     toast.error("Error cancelling order");
       //   })
       //   .finally(() => {
+<<<<<<< HEAD
       //     // Remove order from cancelling list using the updated state
       //     const finalCancellingOrders = Array.isArray(updatedState.cancellingOrders) 
       //       ? updatedState.cancellingOrders.filter(id => id !== orderToCancel._id)
@@ -290,6 +339,13 @@ const Profile = () => {
       //       ...prevState,
       //       cancellingOrders: finalCancellingOrders,
       //     }));
+=======
+      //     updateState({
+      //       ...iState,
+      //       cancelModal: false,
+      //       orderToCancel: null,
+      //     });
+>>>>>>> d20b5ea8f26a1e7ed10e32782289b9eeb86c2ae8
       //   });
 
       // TODO: Replace the above mock implementation with:
@@ -588,6 +644,7 @@ const Profile = () => {
                                     {item?.slot}
                                   </p>
                                 </div>
+<<<<<<< HEAD
                                 {/* Cancel Order Button with Loading State */}
                                 <div style={{ marginTop: "10px" }}>
                                   {Array.isArray(cancellingOrders) && cancellingOrders.includes(item._id) ? (
@@ -641,6 +698,25 @@ const Profile = () => {
                                       Cancel Order
                                     </button>
                                   )}
+=======
+                                
+                                {/* Cancel Order Button */}
+                                <div style={{ marginTop: "10px" }}>
+                                  <button
+                                    className="btn btn-danger"
+                                    style={{
+                                      backgroundColor: "#dc3545",
+                                      border: "none",
+                                      padding: "8px 16px",
+                                      borderRadius: "4px",
+                                      color: "white",
+                                      fontSize: "14px",
+                                    }}
+                                    onClick={() => handleCancelOrder(item)}
+                                  >
+                                    Cancel Order
+                                  </button>
+>>>>>>> d20b5ea8f26a1e7ed10e32782289b9eeb86c2ae8
                                 </div>
                               </div>
                             </div>

@@ -2,8 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { credAndUrl } from "../../../config/config";
 
-
-
+// Existing API calls (unchanged)
 export const cityList = createAsyncThunk(
     "listApis/cityList",
     async (payload) => {
@@ -17,7 +16,6 @@ export const cityList = createAsyncThunk(
         }
     }
 );
-
 
 export const birthdayDecoList = createAsyncThunk(
     "listApis/birthdayDecoList",
@@ -76,7 +74,6 @@ export const weddingBalloonDecoList = createAsyncThunk(
     }
 );
 
-
 export const categorySubCatList = createAsyncThunk(
     "listApis/categorySubCatList",
     async (payload) => {
@@ -90,7 +87,6 @@ export const categorySubCatList = createAsyncThunk(
         }
     }
 );
-
 
 export const categoryList = createAsyncThunk(
     "listApis/categoryList",
@@ -106,7 +102,6 @@ export const categoryList = createAsyncThunk(
     }
 );
 
-
 export const categoryProductList = createAsyncThunk(
     "listApis/categoryProductList",
     async (payload) => {
@@ -120,7 +115,6 @@ export const categoryProductList = createAsyncThunk(
         }
     }
 );
-
 
 export const dealBannerList = createAsyncThunk(
     "listApis/dealBannerList",
@@ -136,7 +130,6 @@ export const dealBannerList = createAsyncThunk(
     }
 );
 
-
 export const topBannerList = createAsyncThunk(
     "listApis/topBannerList",
     async (payload) => {
@@ -151,8 +144,6 @@ export const topBannerList = createAsyncThunk(
     }
 );
 
-
-
 //============================Dynamic Data================================
 export const userDetailState = createAsyncThunk(
     "listApis/userDetailState",
@@ -164,6 +155,7 @@ export const userDetailState = createAsyncThunk(
         }
     }
 );
+
 export const signUpState = createAsyncThunk(
     "listApis/signUpState",
      (payload) => {
@@ -174,7 +166,6 @@ export const signUpState = createAsyncThunk(
         }
     }
 );
-
 
 export const productDetails = createAsyncThunk(
     "listApis/productDetails",
@@ -190,7 +181,6 @@ export const productDetails = createAsyncThunk(
     }
 );
 
-
 export const slotListApi = createAsyncThunk(
     "listApis/slotListApi",
     async (payload) => {
@@ -198,16 +188,12 @@ export const slotListApi = createAsyncThunk(
             const response = await axios.get(
                 `${credAndUrl?.BASE_URL}customer/getslot?date=${payload?.date}&productId=${payload?.productId}`
             );
-            // const response = await axios.get(
-            //     `http://13.51.132.29:4008/api/v1/customer/getslot?date=2025-02-13&productId=67ada73b7103c0d6a311be9e`
-            // );
             return response?.data;
         } catch (e) {
             console.log('Error', e)
         }
     }
 );
-
 
 export const staticSlotListApi = createAsyncThunk(
     "listApis/staticSlotListApi",
@@ -216,9 +202,6 @@ export const staticSlotListApi = createAsyncThunk(
             const response = await axios.get(
                 `${credAndUrl?.BASE_URL}customer/getslotswithoutcalculate`
             );
-            // const response = await axios.get(
-            //     `http://13.51.132.29:4008/api/v1/customer/getslot?date=2025-02-13&productId=67ada73b7103c0d6a311be9e`
-            // );
             return response?.data;
         } catch (e) {
             console.log('Error', e)
@@ -227,8 +210,6 @@ export const staticSlotListApi = createAsyncThunk(
 );
 
 // =============================Search Product List=======================================
-
-
 export const searchProduct = createAsyncThunk(
     "listApis/searchProduct",
     async (payload) => {
@@ -243,18 +224,133 @@ export const searchProduct = createAsyncThunk(
     }
 );
 
+// =============================NEW CART FUNCTIONALITY=======================================
 
+// Add to Cart
+export const addtoCart = createAsyncThunk(
+    "listApis/addtoCart",
+    async (payload, { rejectWithValue }) => {
+        try {
+            console.log('AddtoCart payload:', payload);
+            
+            const response = await axios.post(
+                `${credAndUrl?.BASE_URL}customer/addtocart`,
+                payload
+            );
+            
+            console.log('AddtoCart response:', response);
+            
+            // Return the response data
+            return response?.data;
+        } catch (error) {
+            console.error('AddtoCart error:', error);
+            
+            // Return a proper error response using rejectWithValue
+            return rejectWithValue(
+                error?.response?.data || 
+                { message: "Failed to add item to cart", error: error.message }
+            );
+        }
+    }
+);
 
+// Get Cart Items
+export const getCartItems = createAsyncThunk(
+    "listApis/getCartItems",
+    async (payload, { rejectWithValue }) => {
+        try {
+            console.log('GetCartItems payload:', payload);
+            
+            const response = await axios.get(
+                `${credAndUrl?.BASE_URL}customer/getcart/${payload?.userId}`
+            );
+            
+            console.log('GetCartItems response:', response);
+            return response?.data;
+        } catch (error) {
+            console.error('GetCartItems error:', error);
+            return rejectWithValue(
+                error?.response?.data || 
+                { message: "Failed to fetch cart items", error: error.message }
+            );
+        }
+    }
+);
 
+// Update Cart Item
+export const updateCartItem = createAsyncThunk(
+    "listApis/updateCartItem",
+    async (payload, { rejectWithValue }) => {
+        try {
+            console.log('UpdateCartItem payload:', payload);
+            
+            const response = await axios.put(
+                `${credAndUrl?.BASE_URL}customer/updatecart`,
+                payload
+            );
+            
+            console.log('UpdateCartItem response:', response);
+            return response?.data;
+        } catch (error) {
+            console.error('UpdateCartItem error:', error);
+            return rejectWithValue(
+                error?.response?.data || 
+                { message: "Failed to update cart item", error: error.message }
+            );
+        }
+    }
+);
 
+// Remove from Cart
+export const removeFromCart = createAsyncThunk(
+    "listApis/removeFromCart",
+    async (payload, { rejectWithValue }) => {
+        try {
+            console.log('RemoveFromCart payload:', payload);
+            
+            const response = await axios.delete(
+                `${credAndUrl?.BASE_URL}customer/removefromcart`,
+                { data: payload }
+            );
+            
+            console.log('RemoveFromCart response:', response);
+            return response?.data;
+        } catch (error) {
+            console.error('RemoveFromCart error:', error);
+            return rejectWithValue(
+                error?.response?.data || 
+                { message: "Failed to remove item from cart", error: error.message }
+            );
+        }
+    }
+);
 
+// Clear Cart
+export const clearCart = createAsyncThunk(
+    "listApis/clearCart",
+    async (payload, { rejectWithValue }) => {
+        try {
+            console.log('ClearCart payload:', payload);
+            
+            const response = await axios.delete(
+                `${credAndUrl?.BASE_URL}customer/clearcart/${payload?.userId}`
+            );
+            
+            console.log('ClearCart response:', response);
+            return response?.data;
+        } catch (error) {
+            console.error('ClearCart error:', error);
+            return rejectWithValue(
+                error?.response?.data || 
+                { message: "Failed to clear cart", error: error.message }
+            );
+        }
+    }
+);
 
-
-
-
-
-
+// UPDATED INITIAL STATE WITH CART FUNCTIONALITY
 const initialState = {
+    // Existing states
     getBirthdayList: '',
     getAnniversaryList: '',
     getKidsList: '',
@@ -271,14 +367,31 @@ const initialState = {
     getSlotList:'',
     getStaticSlotList:'',
     getSearchProductList:'',
-    loader: ''
+    
+    // NEW CART STATES
+    cartItems: [],
+    cartLoading: false,
+    cartError: null,
+    addToCartLoading: false,
+    addToCartError: null,
+    updateCartLoading: false,
+    updateCartError: null,
+    removeCartLoading: false,
+    removeCartError: null,
+    clearCartLoading: false,
+    clearCartError: null,
+    cartItemCount: 0,
+    cartTotal: 0,
+    
+    // General loader
+    loader: false
 }
-
 
 const productListSlice = createSlice({
     name: 'lists',
     initialState,
     extraReducers: (builder) => {
+        // EXISTING REDUCERS (unchanged)
         builder.addCase(birthdayDecoList.pending, (state) => {
             state.loader = true;
             state.getBirthdayList = {}
@@ -291,6 +404,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getBirthdayList = action.error.message;
         });
+
         builder.addCase(userDetailState.pending, (state) => {
             state.loader = true;
             state.getUserDetailState = false
@@ -303,6 +417,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getUserDetailState = action.error.message;
         });
+
         builder.addCase(cityList.pending, (state) => {
             state.loader = true;
             state.getCityList = ""
@@ -315,6 +430,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getCityList = action.error.message;
         });
+
         builder.addCase(anniversaryDecoList.pending, (state) => {
             state.loader = true;
             state.getAnniversaryList = {}
@@ -327,6 +443,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getAnniversaryList = action.error.message;
         });
+
         builder.addCase(kidsDecoList.pending, (state) => {
             state.loader = true;
             state.getKidsList = {}
@@ -339,6 +456,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getKidsList = action.error.message;
         });
+
         builder.addCase(weddingBalloonDecoList.pending, (state) => {
             state.loader = true;
             state.getWeddingDecoList = {}
@@ -351,6 +469,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getWeddingDecoList = action.error.message;
         });
+
         builder.addCase(categorySubCatList.pending, (state) => {
             state.loader = true;
             state.getCategorySubCatList = {}
@@ -363,6 +482,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getCategorySubCatList = action.error.message;
         });
+
         builder.addCase(categoryList.pending, (state) => {
             state.loader = true;
             state.getCategoryList = {}
@@ -375,6 +495,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getCategoryList = action.error.message;
         });
+
         builder.addCase(dealBannerList.pending, (state) => {
             state.loader = true;
             state.getDealBannerList = {}
@@ -387,6 +508,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getDealBannerList = action.error.message;
         });
+
         builder.addCase(productDetails.pending, (state) => {
             state.loader = true;
             state.getProductDetails = " "
@@ -399,6 +521,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getProductDetails = action.error.message;
         });
+
         builder.addCase(topBannerList.pending, (state) => {
             state.loader = true;
             state.getTopBannerList = {}
@@ -411,10 +534,12 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getTopBannerList = action.error.message;
         });
+
         builder.addCase(signUpState.fulfilled, (state, action) => {
             state.loader = false;
             state.getSignUpState = action.payload;
         })
+
         builder.addCase(categoryProductList.pending, (state) => {
             state.loader = true;
             state.getCategoryProductList = ""
@@ -427,6 +552,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getCategoryProductList = action.error.message;
         });
+
         builder.addCase(slotListApi.pending, (state) => {
             state.loader = true;
             state.getSlotList = ""
@@ -440,6 +566,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getSlotList = action.error.message;
         });
+
         builder.addCase(searchProduct.pending, (state) => {
             state.loader = true;
             state.getSearchProductList = {}
@@ -452,6 +579,7 @@ const productListSlice = createSlice({
             state.loader = false;
             state.getSearchProductList = action.error.message;
         });
+
         builder.addCase(staticSlotListApi.pending, (state) => {
             state.loader = true;
             state.getStaticSlotList = ""
@@ -466,8 +594,106 @@ const productListSlice = createSlice({
             state.getStaticSlotList = action.error.message;
         });
 
+        // NEW CART REDUCERS
+        // Add to cart cases
+        builder.addCase(addtoCart.pending, (state) => {
+            state.addToCartLoading = true;
+            state.addToCartError = null;
+        })
+        builder.addCase(addtoCart.fulfilled, (state, action) => {
+            state.addToCartLoading = false;
+            state.addToCartError = null;
+            console.log('Add to cart successful:', action.payload);
+            
+            // If you want to update the cart items immediately after adding
+            // You can do this or trigger a getCartItems call from the component
+            // state.cartItems = action.payload?.cartItems || state.cartItems;
+            // state.cartItemCount = action.payload?.cartItemCount || state.cartItemCount;
+        })
+        builder.addCase(addtoCart.rejected, (state, action) => {
+            state.addToCartLoading = false;
+            state.addToCartError = action.payload?.message || action.error.message;
+            console.error('Add to cart failed:', action.payload);
+        });
+
+        // Get cart items cases
+        builder.addCase(getCartItems.pending, (state) => {
+            state.cartLoading = true;
+            state.cartError = null;
+        })
+        builder.addCase(getCartItems.fulfilled, (state, action) => {
+            state.cartLoading = false;
+            state.cartItems = action.payload?.data || action.payload?.cartItems || [];
+            state.cartItemCount = action.payload?.data?.length || action.payload?.cartItems?.length || 0;
+            state.cartTotal = action.payload?.total || 0;
+            state.cartError = null;
+        })
+        builder.addCase(getCartItems.rejected, (state, action) => {
+            state.cartLoading = false;
+            state.cartError = action.payload?.message || action.error.message;
+        });
+
+        // Update cart item cases
+        builder.addCase(updateCartItem.pending, (state) => {
+            state.updateCartLoading = true;
+            state.updateCartError = null;
+        })
+        builder.addCase(updateCartItem.fulfilled, (state, action) => {
+            state.updateCartLoading = false;
+            state.updateCartError = null;
+            
+            // Update the specific item in cartItems if needed
+            const updatedItem = action.payload?.data;
+            if (updatedItem && state.cartItems.length > 0) {
+                const itemIndex = state.cartItems.findIndex(item => item._id === updatedItem._id);
+                if (itemIndex !== -1) {
+                    state.cartItems[itemIndex] = updatedItem;
+                }
+            }
+        })
+        builder.addCase(updateCartItem.rejected, (state, action) => {
+            state.updateCartLoading = false;
+            state.updateCartError = action.payload?.message || action.error.message;
+        });
+
+        // Remove from cart cases
+        builder.addCase(removeFromCart.pending, (state) => {
+            state.removeCartLoading = true;
+            state.removeCartError = null;
+        })
+        builder.addCase(removeFromCart.fulfilled, (state, action) => {
+            state.removeCartLoading = false;
+            state.removeCartError = null;
+            
+            // Remove the item from cartItems locally
+            const removedItemId = action.meta.arg?.itemId || action.meta.arg?.cartItemId;
+            if (removedItemId) {
+                state.cartItems = state.cartItems.filter(item => item._id !== removedItemId);
+                state.cartItemCount = state.cartItems.length;
+            }
+        })
+        builder.addCase(removeFromCart.rejected, (state, action) => {
+            state.removeCartLoading = false;
+            state.removeCartError = action.payload?.message || action.error.message;
+        });
+
+        // Clear cart cases
+        builder.addCase(clearCart.pending, (state) => {
+            state.clearCartLoading = true;
+            state.clearCartError = null;
+        })
+        builder.addCase(clearCart.fulfilled, (state, action) => {
+            state.clearCartLoading = false;
+            state.clearCartError = null;
+            state.cartItems = [];
+            state.cartItemCount = 0;
+            state.cartTotal = 0;
+        })
+        builder.addCase(clearCart.rejected, (state, action) => {
+            state.clearCartLoading = false;
+            state.clearCartError = action.payload?.message || action.error.message;
+        });
     }
 })
-
 
 export default productListSlice.reducer;

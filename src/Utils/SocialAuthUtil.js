@@ -512,6 +512,7 @@ export const handleSocialLoginSuccess = (authResult, setCookie, dispatch, onLogi
       onLoginSuccess({
         method: authResult.userData.data.authMethod,
         userData: authResult.userData,
+        user: authResult.userData,
         [authResult.userData.data.authMethod === 'google' ? 'googleId' : 'facebookId']: 
           authResult.userData.data[authResult.userData.data.authMethod + 'Id']
       });

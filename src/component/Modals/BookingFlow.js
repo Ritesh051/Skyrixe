@@ -6,7 +6,6 @@ import LoginModal from "./LoginModal";
 
 const BookingFlow = ({ show, onHide, onComplete, selectedProduct, user }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [loginHandled, setLoginHandled] = useState(false);
 
   const [bookingDetails, setBookingDetails] = useState({
     selectedDate: null,
@@ -16,13 +15,17 @@ const BookingFlow = ({ show, onHide, onComplete, selectedProduct, user }) => {
 
   const isLoggedIn = !!user;
 
-
+  // Reset flow when modal is closed or reopened
   useEffect(() => {
-    if (currentStep === 4 && isLoggedIn && !loginHandled) {
-      handleLoginSuccess({ user }); // pass user as loginData
-      setLoginHandled(true); // prevent double-calls
+    if (show) {
+      setCurrentStep(1);
+      setBookingDetails({
+        selectedDate: null,
+        selectedTimeSlot: null,
+        selectedCustomizations: [],
+      });
     }
-  }, [currentStep, isLoggedIn, loginHandled]);
+  }, [show]);
 
   const handleDateSelect = (date) => {
     const formattedDate = date.toLocaleDateString("en-US", {
@@ -45,16 +48,50 @@ const BookingFlow = ({ show, onHide, onComplete, selectedProduct, user }) => {
       ...prev,
       selectedCustomizations: customizations,
     }));
-    goToNextStep();
+    
+    // Check if user is already logged in - if yes, complete booking
+    if (isLoggedIn) {
+      handleBookingComplete(customizations);
+    } else {
+      goToNextStep(); // Go to login step
+    }
+  };
+
+  const handleBookingComplete = (customizations = null) => {
+    const finalBookingDetails = {
+      selectedDate: bookingDetails.selectedDate,
+      selectedTimeSlot: bookingDetails.selectedTimeSlot,
+      selectedCustomizations: customizations || bookingDetails.selectedCustomizations,
+    };
+
+    console.log('Completing booking with details:', finalBookingDetails);
+    console.log('User data:', user);
+
+    // Pass the complete booking details to parent
+    onComplete({
+      ...finalBookingDetails,
+      loginData: { 
+        user,
+        method: user?.data?.authMethod || 'existing_user'
+      }
+    });
+    
+    resetFlow();
   };
 
   const handleLoginSuccess = (loginData) => {
-    onComplete({ ...bookingDetails, loginData }); // 👈 Pass everything back to parent
+    console.log('Login successful, completing booking:', loginData);
+    
+    // Complete the booking after successful login
+    onComplete({ 
+      ...bookingDetails, 
+      loginData 
+    });
+    
     resetFlow();
   };
 
   const resetFlow = () => {
-    setLoginHandled(false); // ✅ Reset this flag
     setCurrentStep(1);
     setBookingDetails({
       selectedDate: null,
@@ -101,7 +138,7 @@ const BookingFlow = ({ show, onHide, onComplete, selectedProduct, user }) => {
         onBack={goToPreviousStep}
       />
 
-      {/* Step 4: Login */}
+      {/* Step 4: Login (only show if user is not logged in) */}
       {!isLoggedIn && (
         <LoginModal
           show={show && currentStep === 4}
