@@ -42,6 +42,7 @@ const initialState = {
   cancelModal: false,
   orderToCancel: null,
   cancellingOrders: [], // Track orders being cancelled
+  wishlistItems: []
 };
 
 const Profile = () => {
@@ -208,9 +209,9 @@ const Profile = () => {
         console.log({ res });
         if (res?.payload?.status == 200) {
           toast.success("Review Submit Successfully!!");
-          updateState({ 
-            ...iState, 
-            reviewModal: false, 
+          updateState({
+            ...iState,
+            reviewModal: false,
             productId: "",
             review: "",
             review_image: "",
@@ -238,7 +239,7 @@ const Profile = () => {
     if (orderToCancel) {
       // Ensure cancellingOrders is an array before spreading
       const currentCancellingOrders = Array.isArray(cancellingOrders) ? cancellingOrders : [];
-      
+
       // Add order to cancelling list to show loading state
       const updatedState = {
         ...iState,
@@ -246,7 +247,7 @@ const Profile = () => {
         orderToCancel: null,
         cancellingOrders: [...currentCancellingOrders, orderToCancel._id],
       };
-      
+
       updateState(updatedState);
 
       const cancelData = {
@@ -286,10 +287,10 @@ const Profile = () => {
         })
         .finally(() => {
           // Remove order from cancelling list using the updated state
-          const finalCancellingOrders = Array.isArray(updatedState.cancellingOrders) 
+          const finalCancellingOrders = Array.isArray(updatedState.cancellingOrders)
             ? updatedState.cancellingOrders.filter(id => id !== orderToCancel._id)
             : [];
-            
+
           updateState(prevState => ({
             ...prevState,
             cancellingOrders: finalCancellingOrders,
@@ -357,6 +358,29 @@ const Profile = () => {
       productId: productId,
     });
   };
+  const [wishlistItems, setWishlistItems] = useState([]);
+
+  const getWishlistItems = () => {
+    try {
+      const wishlist = localStorage.getItem('userWishlist');
+      return wishlist ? JSON.parse(wishlist) : [];
+    } catch (error) {
+      console.error('Error getting wishlist:', error);
+      return [];
+    }
+  }
+
+  const removeFromWishlist = (productId) => {
+    try {
+      const wishlist = getWishlistItems();
+      const updatedWishlist = wishlist.filter(item => item.id !== productId);
+      localStorage.setItem('userWishlist', JSON.stringify(updatedWishlist));
+      return updatedWishlist;
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     let newState = { ...iState };
@@ -370,7 +394,39 @@ const Profile = () => {
   }, [additional_phone]);
 
   console.log({ starLength, review_image, addressListing });
-  
+
+  useEffect(() => {
+    const loadWishlistItems = () => {
+      const items = getWishlistItems();
+      setWishlistItems(items);
+    };
+
+    loadWishlistItems();
+
+    // Listen for wishlist updates from other components
+    const handleStorageChange = () => {
+      loadWishlistItems();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('wishlistUpdated', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('wishlistUpdated', handleStorageChange);
+    };
+  }, []);
+
+  const handleRemoveFromWishlist = (productId) => {
+    const updatedWishlist = removeFromWishlist(productId);
+    setWishlistItems(updatedWishlist);
+    toast.success("Item removed from wishlist!");
+  };
+
+  const handleWishlistProductClick = (item) => {
+  const productToPass = item.productData || item;
+  navigate("/products/product-details", { state: productToPass });
+};
   return (
     <>
       <section className="CheckOutArea">
@@ -398,6 +454,11 @@ const Profile = () => {
                         to="/upcoming-bookings"
                       >
                         My Orders
+                      </Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                      <Nav.Link eventKey="wishlist" as={Link} to="/wishlist">
+                        My Wishlist
                       </Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
@@ -481,7 +542,7 @@ const Profile = () => {
                       </article>
                     </div>
                   </Tab.Pane>
-                  
+
                   {/* My Orders Tab - Current/Upcoming Orders */}
                   <Tab.Pane className="tab-pane" eventKey="upcoming-bookings">
                     <div className="PastBookingArea">
@@ -511,9 +572,9 @@ const Profile = () => {
                                       __html:
                                         item?.productDescription?.length > 100
                                           ? item?.productDescription?.slice(
-                                              0,
-                                              100
-                                            ) + "..."
+                                            0,
+                                            100
+                                          ) + "..."
                                           : item?.productDescription,
                                     }}
                                   ></p>
@@ -534,29 +595,29 @@ const Profile = () => {
                                   )}
                                 </figcaption>
                               </article>
-                              
+
                               {item?.productcustomizeDetails?.length > 0 ? (
                                 <div className="PastCutomBookingBox" key={i}>
                                   <h6>Product Customizations</h6>
                                   {item?.productcustomizeDetails?.length > 0
                                     ? item?.productcustomizeDetails?.map(
-                                        (customItem, customIndex) => {
-                                          return (
-                                            <article key={customIndex}>
-                                              <figure>
-                                                <img src={customItem?.customimages} />
-                                              </figure>
-                                              <figcaption>
-                                                <p>{customItem?.name}</p>
-                                                <h3>
-                                                  ₹{customItem?.price}X
-                                                  {customItem?.quantity}
-                                                </h3>
-                                              </figcaption>
-                                            </article>
-                                          );
-                                        }
-                                      )
+                                      (customItem, customIndex) => {
+                                        return (
+                                          <article key={customIndex}>
+                                            <figure>
+                                              <img src={customItem?.customimages} />
+                                            </figure>
+                                            <figcaption>
+                                              <p>{customItem?.name}</p>
+                                              <h3>
+                                                ₹{customItem?.price}X
+                                                {customItem?.quantity}
+                                              </h3>
+                                            </figcaption>
+                                          </article>
+                                        );
+                                      }
+                                    )
                                     : ""}
                                 </div>
                               ) : (
@@ -580,7 +641,7 @@ const Profile = () => {
                                     {item?.slot}
                                   </p>
                                 </div>
-                                
+
                                 {/* Cancel Order Button with Loading State */}
                                 <div style={{ marginTop: "10px" }}>
                                   {Array.isArray(cancellingOrders) && cancellingOrders.includes(item._id) ? (
@@ -655,7 +716,72 @@ const Profile = () => {
                       )}
                     </div>
                   </Tab.Pane>
-                  
+
+                  <Tab.Pane className="tab-pane" eventKey="wishlist">
+                    <div className="WishlistArea">
+                      <h4 style={{ marginBottom: "20px" }}>My Wishlist</h4>
+                      {wishlistItems.length > 0 ? (
+                        <div className="wishlist-grid">
+                          {wishlistItems.map((item, i) => (
+                            <div className="wishlist-item" key={item.id || i}>
+                              <div className="wishlist-image-container">
+                                <img
+                                  src={item.image || item.productimages?.[0] }
+                                  alt={item.name}
+                                  className="wishlist-image"
+                                  onClick={() => handleWishlistProductClick(item.productData || item)}
+                                />
+                                <button
+                                  className="wishlist-remove-btn"
+                                  onClick={() => handleRemoveFromWishlist(item.id)}
+                                  title="Remove from wishlist"
+                                >
+                                  <i className="fa-solid fa-times"></i>
+                                </button>
+                              </div>
+                              <div className="wishlist-content">
+                                <h5 className="wishlist-title" onClick={() => handleWishlistProductClick(item.productData || item)}>
+                                  {item.name || item.productDetails?.productname}
+                                </h5>
+                                <div className="wishlist-price">
+                                  {item.discountedPrice ? (
+                                    <>
+                                      <span className="wishlist-current-price">₹{item.discountedPrice}</span>
+                                      <span className="wishlist-original-price">₹{item.originalPrice}</span>
+                                    </>
+                                  ) : (
+                                    <span className="wishlist-current-price">₹{item.originalPrice || item.price}</span>
+                                  )}
+                                </div>
+                                <button
+                                  className="wishlist-view-btn"
+                                  onClick={() => handleWishlistProductClick(item.productData || item)}
+                                >
+                                  View Product
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="EmptyWishlistArea">
+                          <span>
+                            <i className="fa-solid fa-heart" style={{ fontSize: "4rem", color: "#e5e5e5" }}></i>
+                          </span>
+                          <h3>Your Wishlist is Empty</h3>
+                          <p>Add items you love to your wishlist and find them here.</p>
+                          <button
+                            className="ContinueBtn"
+                            onClick={() => navigate("/")}
+                          >
+                            Start Shopping
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </Tab.Pane>
+
+
                   {/* Past Bookings Tab - Order History */}
                   <Tab.Pane className="tab-pane" eventKey="past-bookings">
                     <div className="PastBookingArea">
@@ -685,9 +811,9 @@ const Profile = () => {
                                       __html:
                                         item?.productDescription?.length > 100
                                           ? item?.productDescription?.slice(
-                                              0,
-                                              100
-                                            ) + "..."
+                                            0,
+                                            100
+                                          ) + "..."
                                           : item?.productDescription,
                                     }}
                                   ></p>
@@ -708,7 +834,7 @@ const Profile = () => {
                                   )}
                                 </figcaption>
                               </article>
-                              
+
                               {item?.productcustomizeDetails?.length > 0 ? (
                                 <div className="PastCutomBookingBox">
                                   <h6>Product Customizations</h6>
@@ -750,7 +876,7 @@ const Profile = () => {
                                       {item?.slot}
                                     </p>
                                   </div>
-                                  
+
                                   {/* Add Review Button */}
                                   <div>
                                     <button
@@ -792,7 +918,7 @@ const Profile = () => {
                       )}
                     </div>
                   </Tab.Pane>
-                  
+
                   <Tab.Pane className="tab-pane" eventKey="address">
                     <div className="AddressArea">
                       <h4>Address Details</h4>
