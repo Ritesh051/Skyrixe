@@ -1659,9 +1659,9 @@ const ProductDetails = () => {
                                 }
                               </p> */}
 
-                              <div className="recommended-product-link">
+                              {/* <div className="recommended-product-link">
                                 <span>see details</span>
-                              </div>
+                              </div> */}
 
                               <div className="recommended-product-footer">
                                 <div className="recommended-product-price">
@@ -1735,7 +1735,7 @@ const ProductDetails = () => {
                       </div>
 
                       {/* Navigation arrows remain the same */}
-                      <button
+                      {/* <button
                         className={`recommended-nav-arrow recommended-nav-prev ${recommendedScrollPosition <= 0 ? 'disabled' : ''}`}
                         onClick={() => handleRecommendedScroll('left')}
                         disabled={recommendedScrollPosition <= 0}
@@ -1748,8 +1748,9 @@ const ProductDetails = () => {
                         disabled={recommendedScrollPosition >= maxScrollPosition}
                       >
                         <i className="fa-solid fa-chevron-right"></i>
-                      </button>
+                      </button> */}
                     </div>
+                  </div>
 
                     {/* INCLUSIONS SECTION */}
                     <div className="inclusions-section">
@@ -1975,7 +1976,7 @@ const ProductDetails = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            
           )}
         </div>
       </section>
